@@ -126,19 +126,6 @@ Part top :=
     then: @parent top
     else: self
 
-Part filename := @tag + ".html"
-
-Part url(anchor = nil) :=
-  condition:
-    @parent ->
-      top url + "#" + (anchor || @tag)
-
-    anchor ->
-      filename + "#" + anchor
-
-    otherwise ->
-      filename
-
 content(String)? := true
 content(Element)? := true
 content(nil)? := true

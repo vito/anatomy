@@ -1,43 +1,68 @@
 use("atomy")
 use("io")
 
+require("json")
+
 use("anatomy/html")
 data = require("anatomy/data")
 
+
+source-to-url(.anchor(part, anchor)) =
+  url(part, anchor)
+source-to-url(.part(part)) =
+  url(part)
+source-to-url(.url(url)) =
+  url
 
 over(s: String) := s
 over(t: data::Target) :=
   <a(name = t tag): nil
 over(p: data::Paragraph) :=
   <p: over(p content)
-over(p: data::Reference) := do:
-  url =
-    p source match:
-      .anchor(part, anchor) ->
-        part url(anchor)
-
-      .part(part) ->
-        part url
-
-      .url(url) ->
-        url
-
-  <a(href = url): over(p content)
+over(p: data::Reference) :=
+  <a(href = source-to-url(p source)): over(p content)
 over(a: Array) :=
   over(x) for x in a
 
+filename(p) := p tag + ".html"
+
+url(p, anchor = nil) :=
+  condition:
+    p parent ->
+      url(p top) + "#" + (anchor || p tag)
+
+    anchor ->
+      filename(p) + "#" + anchor
+
+    otherwise ->
+      filename(p)
+
+
+toc-leaf(part) :=
+  <li:
+    <a(href = url(part)):
+      part title
+
+    unless(part parts empty?):
+      <ol:
+        toc-leaf(s) for s in part parts
+
+
 -- just return a string for now
-render(part, out = ".") :=
-  with-output-to(i"#{out}/#{part filename}"):
+render(part, out = ".") := do:
+  with-output-to(i"#{out}/public/tags_#{part tag}.js"):
+    tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
+    i"var SEARCH_TAGS = #{tags to-json};" println
+
+  with-output-to(i"#{out}/#{filename(part)}"):
     "<!DOCTYPE html>" println
     <html {
       <head:
         <title: over(part title)
         <link(type = "text/css", rel = "stylesheet", href = "public/doodle.css")
-        <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
         <script(type = "text/javascript", src = "public/jquery.js") {}
         <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
-        --<script(type = "text/javascript", src = "public/tags.js") {}
+        <script(type = "text/javascript", src = i"public/tags_#{part tag}.js") {}
         <script(type = "text/javascript", src = "public/main.js") {}
       <body:
         <div(#main):
@@ -52,21 +77,70 @@ render(part, out = ".") :=
                 autocomplete = "off"
                 #search)
 
-            <div(#sidebar):
-              <h4: "On this page:"
-              <ol(.toc):
-                nil
+          <ul(.search-results) {}
 
-              <h4: "Up one level:"
+        <div(#sidebar):
+          unless(part parts empty?):
+            [ <h4: "On this page:"
+
               <ol(.toc):
-                nil
+                toc-leaf(s) for s in part parts
+            ]
+
+          when(part parent):
+            [ <h4: "Up one level:"
+              <ol(.toc):
+                toc-leaf(part parent)
+            ]
     } println
 
 render-part(part, depth = 1) :=
   <div(.section, id = i"section_#{part tag}"):
     <"h#{depth}"(.section_header):
+      <a(name = part tag) {}
       over(part title)
 
     over(part body)
 
     render-part(sub, depth + 1) for sub in part parts
+
+
+search-tags(p) := do:
+  tags = [
+    [ p title
+      <span(.title):
+        <a(href = url(p)): p title
+      url(p)
+    ]
+    [ p tag
+      <span(.tag):
+        "tag: "
+        <code:
+          <a(href = url(p)): p tag
+      url(p)
+    ]
+  ]
+
+  -- TODO: let tags control their display
+  p tags each-key [tag]:
+    url = source-to-url(p find-tag(tag))
+    tags <<
+      [ tag
+        <span(.tag):
+          <code:
+            <a(href = url): tag
+        url
+      ]
+
+  p parts each [sub]:
+    tags +=
+      [ t
+        d copy tap [wp]:
+          wp body <<
+            <span(.parent):
+              " in "
+              <a(href = url(p)): p title
+        u
+      ] for [t, d, u] in search-tags(sub)
+
+  tags
