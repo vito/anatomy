@@ -83,9 +83,22 @@ Part open:
 --   2. tags
 --   3. siblings, searching in order
 --   4. parent ...
-Part find-tag(tag, excluding = nil) :=
-  catch(.found):
-    search-tag-excluding(tag, nil)
+Part find-tag(tag, excluding = nil) := do:
+  result =
+    catch(.found):
+      search-tag-excluding(tag, nil)
+      nil
+
+  result match:
+    nil -> nil
+
+    [where, .anchor(x)] ->
+      .anchor(where, x)
+
+    [where, .self] ->
+      .part(where)
+
+    [_, x] -> x
 
 Part search-tag-excluding(tag, excluding) := do:
   found = @local-tags[tag] || @tags[tag]

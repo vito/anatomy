@@ -9,9 +9,15 @@ over(p: data::Paragraph) :=
   i"<p>#{over(p content)}</p>"
 over(p: data::Reference) := do:
   url =
-    p source[1] match:
-      .anchor(x) ->
-        p source[0] url(x)
+    p source match:
+      .anchor(part, anchor) ->
+        part url(anchor)
+
+      .part(part) ->
+        part url
+
+      .url(url) ->
+        url
 
   i"<a href=\"#{url}\">#{over(p content)}</a>"
 over(a: Array) :=
