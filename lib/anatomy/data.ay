@@ -123,7 +123,7 @@ Part search-tag(tag) := do:
 
 Part top :=
   if(@parent)
-    then: @parent find-top
+    then: @parent top
     else: self
 
 Part filename := @tag + ".html"
