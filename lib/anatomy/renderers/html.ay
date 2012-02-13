@@ -29,6 +29,7 @@ over(a: Array) :=
 -- just return a string for now
 render(part, out = ".") :=
   with-output-to(i"#{out}/#{part filename}"):
+    "<!DOCTYPE html>" println
     <html {
       <head:
         <title: over(part title)
