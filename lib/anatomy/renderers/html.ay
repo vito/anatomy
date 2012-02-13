@@ -136,10 +136,11 @@ search-tags(p) := do:
     tags +=
       [ t
         d copy tap [wp]:
-          wp body <<
-            <span(.parent):
-              " in "
-              <a(href = url(p)): p title
+          unless(wp body last attributes[.class] == "parent"):
+            wp body <<
+              <span(.parent):
+                " in "
+                <a(href = url(p)): p title
         u
       ] for [t, d, u] in search-tags(sub)
 
