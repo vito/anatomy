@@ -43,7 +43,6 @@ reference(tag, content = nil) :=
 
       data::Reference new(target, content))
 
--- TODO: build paragraphs based on element vs. block
 decode(*cs) := do:
   part = data::Part new
 

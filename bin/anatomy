@@ -42,4 +42,8 @@ collected = collect over(traversed)
 --p([.collected, collected])
 resolved = resolve over(collected)
 --p([.resolved, resolved])
-puts(html render(resolved))
+
+Dir mkdir(output) unless Dir exists(output)?
+Dir mkdir(output + "/public") unless Dir exists(output + "/public")?
+
+html render(resolved, output)

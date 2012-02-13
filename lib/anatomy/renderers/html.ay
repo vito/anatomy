@@ -1,12 +1,15 @@
 use("atomy")
+use("io")
 
+use("anatomy/html")
 data = require("anatomy/data")
+
 
 over(s: String) := s
 over(t: data::Target) :=
-  i"<a name=\"#{t tag}\"></a>"
+  <a(name = t tag): nil
 over(p: data::Paragraph) :=
-  i"<p>#{over(p content)}</p>"
+  <p: over(p content)
 over(p: data::Reference) := do:
   url =
     p source match:
@@ -19,24 +22,50 @@ over(p: data::Reference) := do:
       .url(url) ->
         url
 
-  i"<a href=\"#{url}\">#{over(p content)}</a>"
+  <a(href = url): over(p content)
 over(a: Array) :=
   a collect [x]: over(x); join
 
 -- just return a string for now
-render(part) :=
-  i"<!DOCTYPE html>
-<html>
-  <head>
-    <title>#{over(part title)}</title>
-  </head>
-  <body>#{render-part(part)}</body>
-</html>"
+render(part, out = ".") :=
+  with-output-to(i"#{out}/#{part filename}"):
+    <html {
+      <head:
+        <title: over(part title)
+        <link(type = "text/css", rel = "stylesheet", href = "public/doodle.css")
+        <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
+        <script(type = "text/javascript", src = "public/jquery.js") {}
+        <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
+        --<script(type = "text/javascript", src = "public/tags.js") {}
+        <script(type = "text/javascript", src = "public/main.js") {}
+      <body:
+        <div(#main):
+          <div(#content):
+            render-part(part)
+
+        <div(.search):
+          <form(action = "javascript:void(0)"):
+            <input(
+                type = "text"
+                placeholder = "Search&hellip;"
+                autocomplete = "off"
+                #search)
+
+            <div(#sidebar):
+              <h4: "On this page:"
+              <ol(.toc):
+                nil
+
+              <h4: "Up one level:"
+              <ol(.toc):
+                nil
+    } println
 
 render-part(part, depth = 1) :=
-  i"<div class=\"section\">
-  <h#{depth} name=\"#{part tag}\">#{over(part title)}</h#{depth}>
-  #{over(part body)}
+  <div(.section, id = i"section_#{part tag}"):
+    <"h#{depth}"(.section_header):
+      over(part title)
 
-  #{(render-part(sub, depth + 1) for sub in part parts) join}
-</div>"
+    over(part body)
+
+    render-part(sub, depth + 1) for sub in part parts

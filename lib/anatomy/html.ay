@@ -1,0 +1,48 @@
+use("atomy")
+
+data(HTMLElement(@name, @attributes = #{}, @body = nil))
+
+attr-to-pair(`.~name) = `(.class -> ~(name text to-s))
+attr-to-pair(`#~name) = `(.id -> ~(name text to-s))
+attr-to-pair(`(~x = ~y)) = `(.~x -> ~y)
+
+macro(<(~name): ~*body):
+  `(HTMLElement new(.~name, #{}, ~body))
+
+macro(<~(name)(~*attrs): ~*body):
+  `(HTMLElement new(
+      .~name
+      #{ ~*(attr-to-pair(a) for a in attrs) }
+      ~body))
+
+macro(<~(name)(~*attrs)):
+  `(HTMLElement new(
+      .~name
+      #{ ~*(attr-to-pair(a) for a in attrs) }
+      nil))
+
+
+render(out, x: Array) =
+  render(out, y) for y in x
+render(out, x: String) =
+  out << x -- TODO: sanitize
+render(out, x) =
+  out << x to-s
+
+HTMLElement to-s := do:
+  out = i"<#{@name}"
+
+  @attributes each [k, v]:
+    out << i" #{k}=\"#{v}\""
+
+  unless(@body):
+    out << " />"
+    return(out)
+
+  out << ">"
+
+  render(out, @body)
+
+  out << i"</#{@name}>"
+
+  out
