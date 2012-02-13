@@ -24,7 +24,7 @@ over(p: data::Reference) := do:
 
   <a(href = url): over(p content)
 over(a: Array) :=
-  a collect [x]: over(x); join
+  over(x) for x in a
 
 -- just return a string for now
 render(part, out = ".") :=

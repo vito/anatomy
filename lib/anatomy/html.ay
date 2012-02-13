@@ -1,5 +1,8 @@
 use("atomy")
 
+require("cgi")
+
+
 data(HTMLElement(@name, @attributes = #{}, @body = nil))
 
 attr-to-pair(`.~name) = `(.class -> ~(name text to-s))
@@ -25,7 +28,7 @@ macro(<~(name)(~*attrs)):
 render(out, x: Array) =
   render(out, y) for y in x
 render(out, x: String) =
-  out << x -- TODO: sanitize
+  out << CGI escapeHTML(x)
 render(out, x) =
   out << x to-s
 
