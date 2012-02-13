@@ -1,0 +1,4 @@
+use("atomy")
+
+traverse = require("anatomy/stages/traverse")
+collect = require("anatomy/stages/collect")

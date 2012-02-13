@@ -1,0 +1,45 @@
+#!/usr/bin/env atomy
+-- vim: ft=atomy
+
+use("atomy")
+
+require("rubygems")
+require("optparse")
+
+$path unshift(File expand-path("../../lib", _FILE))
+
+options = #{}
+op = OptionParser new [o]:
+  o banner = "usage: anatomy [file] [options]"
+
+  o on("-i", "--input FILE", "anatomy document") [v]:
+    options[.input] = v
+
+  o on("-o", "--output DIRECTORY", "where to place output documents and files") [v]:
+    options[.output] = v
+
+op parse!
+
+file = options[.input] || ARGV[0]
+
+output = options[.output] || "."
+
+unless(file):
+  puts(op help)
+  exit(1)
+
+mod = Atomy load(File expand-path(file))
+
+traverse = require("anatomy/stages/traverse")
+collect = require("anatomy/stages/collect")
+resolve = require("anatomy/stages/resolve")
+html = require("anatomy/renderers/html")
+part = mod doc
+--p([.part, part])
+traversed = traverse over(part)
+--p([.traversed, traversed])
+collected = collect over(traversed)
+--p([.collected, collected])
+resolved = resolve over(collected)
+--p([.resolved, resolved])
+puts(html render(resolved))

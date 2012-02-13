@@ -1,0 +1,65 @@
+-- build paragraphs, set title info, add sub-parts
+
+use("atomy")
+
+data = require("anatomy/data")
+
+
+over((m: data::MetaBlock), part) := do:
+  m action[part]
+  nil
+
+over((a: Array), part) := do:
+  a each [x]:
+    over(x, part)
+
+  nil
+
+over((p: data::Part), part) := do:
+  part parts << p
+  p parent = part
+  part body freeze
+  nil
+
+close-paragraph(body) =
+  when(body last is-a(data::Paragraph)?):
+    body last closed? = true
+
+ensure-paragraph(body) =
+  unless(body last is-a(data::Paragraph)? and
+          not body last closed?):
+    body << data::Paragraph new([])
+
+add-content-to((str: String), body) :=
+  str split("\n\n", 2) match:
+    [? chomp empty?, rest]:
+      close-paragraph(body)
+      add-content-to(rest, body)
+
+    [content, rest]:
+      ensure-paragraph(body)
+      body last content << content
+      close-paragraph(body)
+      add-content-to(rest, body)
+
+    [content]:
+      ensure-paragraph(body)
+      body last content << content
+
+    []:
+      close-paragraph(body)
+
+
+add-content-to(x, body) := do:
+  ensure-paragraph(body)
+  body last content << x
+
+over(x, part) :=
+  condition:
+    part body frozen? -> nil
+
+    data content(x)? ->
+      add-content-to(x, part body)
+
+    otherwise ->
+      part body << x

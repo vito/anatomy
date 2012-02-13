@@ -1,0 +1,52 @@
+use("atomy")
+
+data = require("anatomy/data")
+meta = require("anatomy/stages/meta")
+traverse = require("anatomy/stages/traverse")
+collect = require("anatomy/stages/collect")
+
+
+title(
+    content: String
+    -- TODO: can't do tag = data sanitize(content)
+    tag = nil
+    *extra-tags) :=
+  data::MetaBlock new(
+    [part]:
+      part title = content
+
+      tag ||= data sanitize(content)
+      part tag = tag
+      part tags[tag] = .self
+
+      extra-tags each [t]:
+        part tags[t] = .self)
+
+section(title, content) :=
+  decode(title(title), content)
+
+include-section(path) :=
+  Atomy load(path) doc
+
+target-element(tag) :=
+  data::CollectElement new(
+    [part]:
+      part tags[tag] = .anchor(tag)
+      data::Target new(tag))
+
+reference(tag, content = nil) :=
+  data::ResolveElement new(
+    [part]:
+      target = part find-tag(tag)
+      unless(target):
+        error(.undefined(tag))
+
+      data::Reference new(target, content))
+
+-- TODO: build paragraphs based on element vs. block
+decode(*cs) := do:
+  part = data::Part new
+
+  meta over(cs, part)
+
+  part

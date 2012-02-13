@@ -1,0 +1,136 @@
+use("atomy")
+
+data(Block(@style = nil)):
+  Table(@rows)
+  Itemization(@elements)
+  NestedFlow(@blocks)
+  Paragraph(@content, @closed? = false)
+  MetaBlock(@action)
+  TraverseBlock(@action)
+  ResolveBlock(@action)
+  
+data(Element(@content, @style = nil)):
+  Target(@tag):
+    TOCTarget
+    PageTarget
+    Redirect(@path, @anchor)
+  TOC(@content)
+  Reference(@source, @content = nil)
+  Index(@keys, @description)
+  TraverseElement(@action)
+  ResolveElement(@action)
+  CollectElement(@action)
+  RenderElement(@action)
+
+data(
+  Part(
+    -- nil or title content
+    @title = nil
+
+    -- the part style (TODO: list/document)
+    @style = nil
+
+    -- initial content before sub-parts
+    @body = []
+
+    -- sub-parts
+    @parts = []
+
+    -- parent part
+    @parent = nil
+
+    -- tags
+    -- tag -> reference
+    @tags = #{}
+    @tag-prefix = nil
+
+    -- tags that cannot be found by parents
+    @local-tags = #{}
+    
+    -- the primary tag used for this Part
+    -- used for URIs
+    @tag = nil
+
+    -- content that is inspected during the collect pass,
+    -- but doesn't produce output
+    @to-collect = []))
+
+
+Part open:
+  attr-accessor(.tag)
+
+  -- TODO: why can't I do Part copy := ...?
+  copy :=
+    self class new(
+      @title copy
+      @style copy
+      @body copy
+      @parts dup
+      @parent
+      @tags dup
+      @tag-prefix
+      @local-tags dup)
+
+
+-- search in order:
+-- 1. local hidden tags
+-- 2. local tags
+-- 3. children
+--   1. local tags
+--   2. children
+-- 4. parent
+--   1. local hidden tags
+--   2. tags
+--   3. siblings, searching in order
+--   4. parent ...
+Part find-tag(tag, excluding = nil) :=
+  catch(.found):
+    search-tag-excluding(tag, nil)
+
+Part search-tag-excluding(tag, excluding) := do:
+  found = @local-tags[tag] || @tags[tag]
+  throw(.found, [self, found]) if found
+
+  @parts each [p]:
+    unless(p == excluding):
+      p search-tag(tag)
+  
+  @parent search-tag-excluding(tag, self) if @parent
+
+  nil
+
+-- called from find-tag; only search exposed tags and children
+Part search-tag(tag) := do:
+  when(found = @tags[tag]):
+    throw(.found, [self, found])
+
+  @parts each [p]:
+    p search-tag(tag)
+
+
+Part top :=
+  if(@parent)
+    then: @parent find-top
+    else: self
+
+Part url(anchor = nil) :=
+  condition:
+    @parent ->
+      top url + "#" + (anchor || @tag)
+
+    anchor ->
+      @tag + ".html#" + anchor
+
+    otherwise ->
+      @tag + ".html"
+
+content(String)? := true
+content(Element)? := true
+content(nil)? := true
+content(x: Array)? := x all? .content?
+content(_)? := false
+
+sanitize(x) :=
+  x gsub(r"\s+", "-")
+    gsub(r"[^[:alnum:]_\-:.]", "")
+    downcase

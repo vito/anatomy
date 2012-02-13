@@ -1,0 +1,24 @@
+-- scan the Part for any tags it defines, attaching them to a copied Part
+-- go into sub-parts and do the same
+
+use("atomy")
+
+data = require("anatomy/data")
+
+
+pass((a: Array), part) :=
+  pass(x, part) for x in a
+
+pass((c: data::CollectElement), part) :=
+  c action[part]
+
+pass((p: data::Paragraph), part) := do:
+  p class new(pass(p content, part))
+
+pass(x, _) := x
+
+
+over(part) := do:
+  part body = pass(part body, part)
+  over(sub) for sub in part parts
+  part

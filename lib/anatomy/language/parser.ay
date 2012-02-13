@@ -1,0 +1,125 @@
+use("atomy")
+use("grammar")
+
+parser(Parser):
+  %%:
+    trim-leading(str, n) := do:
+      unless(n > 0):
+        return(str)
+
+      str gsub(r"\n {0,#{n}}", "\n")!
+
+  %atomy := Atomy::Parser
+
+  line := { current-line }
+  column := { current-column }
+
+  comment := "{-" in-multi
+
+  in-multi := [
+    /"[^\-\{\}]*"/ "-}"
+    /"[^\-\{\}]*"/ "{-" in-multi /"[^\-\{\}]*"/ "-}"
+    /"[^\-\{\}]*"/ /"[-{}]"/ in-multi
+  ]
+
+  content(s) := comment? (chunk(s) | escaped)=c comment? { c }
+
+  insignificant := (<(/"[^\\\{\}]+"/)> | "\\" <(/"[\\\{\}]"/)>) {
+    text
+  }
+
+  chunk(s) := [
+    line=l insignificant+=chunk (&"}" | comment)?=c {
+      text = chunk join
+
+      when(c):
+        text rstrip!
+
+      trim-leading(text, s)
+
+      text
+    }
+
+    nested
+  ]
+
+  escaped := [
+    line=l "\\" (%atomy.identifier)=n argument+=as {
+      `(~(Atomy::AST::Word new(l, n))(~*as))
+    }
+
+    line=l "\\" (%atomy.identifier)=n {
+      Atomy::AST::Word new(l, n)
+    }
+
+    line=l "\\" "(" (%atomy.expression)=e ")" { e }
+  ]
+
+  leading := [
+    &(/"\n+"/ column=b /"\s+"/ column=a) { a - b }
+    { 0 }
+  ]
+
+  nested :=
+    line=l "{" leading=s content(s)*=cs "}" {
+      when(cs[0] is-a(String)?):
+        cs[0] sub(r"^\n", "")!
+
+      cs match:
+        []: ""
+        [x]: x
+        _: `content(~*cs)
+    }
+
+  atomy := "[" (%atomy.expression)=e "]" { e }
+
+  argument := nested | atomy
+
+  root :=
+    line=l content(0)*=cs !_ {
+      setup = Array[]
+      definitions = Array[]
+
+      filter = [c]:
+        c match:
+          (`use(~_) | `require(~_)):
+            setup << c
+            nil
+
+          `(~x := ~y):
+            definitions << `(~x := ~y)
+            nil
+
+          `define(~x, ~y):
+            definitions << `(~x = ~y)
+
+          Array: c map &filter
+
+          _ -> c
+
+      body = cs map &filter
+
+      `(do:
+          use("atomy")
+
+          use("anatomy/base")
+
+          ~*setup
+
+          ~*definitions
+
+          doc := decode(~*cs))
+    }
+
+
+Parser singleton:
+  parse-string(str) := do:
+    p = new(str)
+    unless(p parse):
+      p raise-error
+
+    p result
+
+  parse-file(path) := do:
+    File open(path, "r") [f]:
+      parse-string(f read)

@@ -1,0 +1,7 @@
+*.rbc
+*.gem
+*.ayc
+_play/
+.rbx/
+.rbenv-gemsets
+Gemfile.lock

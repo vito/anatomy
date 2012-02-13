@@ -1,0 +1,36 @@
+use("atomy")
+
+data = require("anatomy/data")
+
+over(s: String) := s
+over(t: data::Target) :=
+  i"<a name=\"#{t tag}\"></a>"
+over(p: data::Paragraph) :=
+  i"<p>#{over(p content)}</p>"
+over(p: data::Reference) := do:
+  url =
+    p source[1] match:
+      .anchor(x) ->
+        p source[0] url(x)
+
+  i"<a href=\"#{url}\">#{over(p content)}</a>"
+over(a: Array) :=
+  a collect [x]: over(x); join
+
+-- just return a string for now
+render(part) :=
+  i"<!DOCTYPE html>
+<html>
+  <head>
+    <title>#{over(part title)}</title>
+  </head>
+  <body>#{render-part(part)}</body>
+</html>"
+
+render-part(part, depth = 1) :=
+  i"<div class=\"section\">
+  <h#{depth} name=\"#{part tag}\">#{over(part title)}</h#{depth}>
+  #{over(part body)}
+
+  #{(render-part(sub, depth + 1) for sub in part parts) join}
+</div>"

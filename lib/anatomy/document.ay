@@ -1,0 +1,17 @@
+use("atomy")
+
+-- traverse: include all sections
+-- collect: define all tags
+-- resolve: hyperlinking
+-- render
+Styles = module {}
+
+strip-tags(x) :=
+  x gsub(r"<script.*?<\/script>", "")
+    gsub(r"<.*?>", "")
+
+sanitize(x) :=
+  strip-tags(x)
+    gsub(r"\s+", "-")
+    gsub(r"[^[:alnum:]_\-:.]", "")
+    downcase

@@ -1,0 +1,33 @@
+use("atomy")
+
+data = require("anatomy/data")
+
+
+pass((a: Array), info) :=
+  pass(x, info) for x in a
+
+pass((x: data::TraverseBlock | data::TraverseElement), info) := do:
+  new = x action[info]
+
+  when(new != x):
+    signal(.changed)
+
+  new
+
+pass(x, _) := x
+
+
+over(part) := do:
+  info = #{}
+
+  changed? = true
+  while(changed?):
+    changed? =! false
+
+    { part body = pass(part body, info) } bind:
+      .changed:
+        changed? =! true
+
+  over(p) for p in part parts
+
+  part
