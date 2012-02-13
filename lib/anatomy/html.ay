@@ -24,6 +24,9 @@ macro(<~(name)(~*attrs)):
       #{ ~*(attr-to-pair(a) for a in attrs) }
       nil))
 
+macro(<~name):
+  `(HTMLElement new(.~name))
+
 
 render(out, x: Array) =
   render(out, y) for y in x
