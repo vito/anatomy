@@ -135,9 +135,11 @@ search-tags(p) := do:
   p parts each [sub]:
     tags +=
       [ t
-        d copy tap [wp]:
-          unless(wp body last attributes[.class] == "parent"):
-            wp body <<
+        if(d attributes[.class] == "with_parent")
+          then: d
+          else:
+            <span(.with-parent):
+              d
               <span(.parent):
                 " in "
                 <a(href = url(p)): p title
