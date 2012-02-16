@@ -22,12 +22,15 @@ data(Element(@content, @style = nil)):
   CollectElement(@action)
   RenderElement(@action)
 
+data(Style(@type = nil, @properties = []))
+
 data(
   Part(
     -- nil or title content
     @title = nil
 
-    -- the part style (TODO: list/document)
+    -- the part style
+    -- TODO: can't do @style = Style new
     @style = nil
 
     -- initial content before sub-parts
@@ -55,6 +58,8 @@ data(
     -- but doesn't produce output
     @to-collect = []))
 
+-- TODO: can't declare with Style new default (see above)
+Part style := @style ||= Style new
 
 -- search in order:
 -- 1. local hidden tags

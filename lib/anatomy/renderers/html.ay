@@ -71,10 +71,21 @@ over(a: Array) :=
 filename(p) := p tag + ".html"
 
 
+top(p) :=
+  condition:
+    p parent and .toc is-in p parent style properties ->
+      p
+
+    p parent ->
+      top(p parent)
+
+    otherwise ->
+      p
+
 url(p, anchor = nil) :=
   condition:
-    p parent ->
-      url(p top) + "#" + (anchor || p tag)
+    top(p) != p ->
+      url(top(p)) + "#" + (anchor || p tag)
 
     anchor ->
       filename(p) + "#" + anchor
@@ -95,9 +106,9 @@ toc-leaf(part) :=
 
 -- just return a string for now
 render(part, out = ".") := do:
-  with-output-to(i"#{out}/public/tags_#{part tag}.js"):
-    tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
-    i"var SEARCH_TAGS = #{tags to-json};" println
+  tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
+  File open(i"#{out}/public/tags_#{part tag}.js", "w") [f]:
+    f write(i"var SEARCH_TAGS = #{tags to-json};")
 
   File open(i"#{out}/#{filename(part)}", "w") [f]:
     f write("<!DOCTYPE html>")
@@ -113,7 +124,7 @@ render(part, out = ".") := do:
         <body:
           <div(#main):
             <div(#content):
-              render-part(part)
+              render-part(part, out)
 
           <div(.search):
             <form(action = "javascript:void(0)"):
@@ -140,7 +151,9 @@ render(part, out = ".") := do:
               ]
       })
 
-render-part(part, depth = 1) :=
+render-part(part, out = ".", depth = 1) := do:
+  toc? = .toc is-in part style properties
+
   <div(.section, id = i"section_#{part tag}"):
     <"h#{depth}"(.section_header):
       <a(name = part tag) {}
@@ -148,7 +161,14 @@ render-part(part, depth = 1) :=
 
     over(part body)
 
-    render-part(sub, depth + 1) for sub in part parts
+    if(toc?)
+      then:
+        <ol(.toc, #table-of-contents):
+          part parts collect [sub]:
+            render(sub, out)
+            toc-leaf(sub)
+      else:
+        render-part(sub, out, depth + 1) for sub in part parts
 
 
 search-tags(p) := do:

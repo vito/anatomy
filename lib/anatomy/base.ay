@@ -22,6 +22,11 @@ title(
       extra-tags each [t]:
         part tags[t] = .self)
 
+table-of-contents :=
+  data::MetaBlock new(
+    [part]:
+      part style properties << .toc)
+
 section(title, content) :=
   decode(title(title), content)
 
