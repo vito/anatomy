@@ -54,45 +54,46 @@ render(part, out = ".") := do:
     tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
     i"var SEARCH_TAGS = #{tags to-json};" println
 
-  with-output-to(i"#{out}/#{filename(part)}"):
-    "<!DOCTYPE html>" println
-    <html {
-      <head:
-        <title: over(part title)
-        <link(type = "text/css", rel = "stylesheet", href = "public/doodle.css")
-        <script(type = "text/javascript", src = "public/jquery.js") {}
-        <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
-        <script(type = "text/javascript", src = i"public/tags_#{part tag}.js") {}
-        <script(type = "text/javascript", src = "public/main.js") {}
-      <body:
-        <div(#main):
-          <div(#content):
-            render-part(part)
+  File open(i"#{out}/#{filename(part)}", "w") [f]:
+    f write("<!DOCTYPE html>")
+    f write(
+      <html {
+        <head:
+          <title: over(part title)
+          <link(type = "text/css", rel = "stylesheet", href = "public/doodle.css")
+          <script(type = "text/javascript", src = "public/jquery.js") {}
+          <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
+          <script(type = "text/javascript", src = i"public/tags_#{part tag}.js") {}
+          <script(type = "text/javascript", src = "public/main.js") {}
+        <body:
+          <div(#main):
+            <div(#content):
+              render-part(part)
 
-        <div(.search):
-          <form(action = "javascript:void(0)"):
-            <input(
-                type = "text"
-                placeholder = "Search&hellip;"
-                autocomplete = "off"
-                #search)
+          <div(.search):
+            <form(action = "javascript:void(0)"):
+              <input(
+                  type = "text"
+                  placeholder = "Search&hellip;"
+                  autocomplete = "off"
+                  #search)
 
-          <ul(.search-results) {}
+            <ul(.search-results) {}
 
-        <div(#sidebar):
-          unless(part parts empty?):
-            [ <h4: "On this page:"
+          <div(#sidebar):
+            unless(part parts empty?):
+              [ <h4: "On this page:"
 
-              <ol(.toc):
-                toc-leaf(s) for s in part parts
-            ]
+                <ol(.toc):
+                  toc-leaf(s) for s in part parts
+              ]
 
-          when(part parent):
-            [ <h4: "Up one level:"
-              <ol(.toc):
-                toc-leaf(part parent)
-            ]
-    } println
+            when(part parent):
+              [ <h4: "Up one level:"
+                <ol(.toc):
+                  toc-leaf(part parent)
+              ]
+      })
 
 render-part(part, depth = 1) :=
   <div(.section, id = i"section_#{part tag}"):
