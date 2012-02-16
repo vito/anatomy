@@ -117,6 +117,7 @@ content(x: Array)? := x all? .content?
 content(_)? := false
 
 sanitize(x) :=
-  x gsub(r"\s+", "-")
+  x gsub(r" & ", " and ")
+    gsub(r"\s+", "-")
     gsub(r"[^[:alnum:]_\-:.]", "")
     downcase
