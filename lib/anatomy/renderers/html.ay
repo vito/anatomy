@@ -14,17 +14,62 @@ source-to-url(.part(part)) =
 source-to-url(.url(url)) =
   url
 
-over(s: String) := s
-over(t: data::Target) :=
-  <a(name = t tag): nil
+over(i: data::Itemization) :=
+  <dl:
+    [ <dt: over(name)
+      <dd: over(body)
+    ] for [name, body] in i elements
 over(p: data::Paragraph) :=
   <p: over(p content)
+over(b: data::Block) :=
+  b style match:
+    .tt ->
+      <pre: over(b content)
+
+    nil ->
+      <div: over(b content)
+
+over(t: data::Target) :=
+  <a(name = t tag): nil
 over(p: data::Reference) :=
-  <a(href = source-to-url(p source)): over(p content)
+  if(p source)
+    then:
+      <a(href = source-to-url(p source)): over(p content)
+    else:
+      <a(.undefined): over(p content)
+over(e: data::Element) :=
+  e style match:
+    .italic ->
+      <em: over(e content)
+
+    .bold ->
+      <strong: over(e content)
+
+    .tt ->
+      <code: over(e content)
+
+    .superscript ->
+      <sup: over(e content)
+
+    .subscript ->
+      <sub: over(e content)
+
+    -- TODO
+    .smaller ->
+      <span(style = "font-size: 80%"): over(e content)
+
+    -- TODO
+    .larger ->
+      <span(style = "font-size: 120%"): over(e content)
+
+over(nil) := nil
+over(s: String) := s
 over(a: Array) :=
   over(x) for x in a
 
+
 filename(p) := p tag + ".html"
+
 
 url(p, anchor = nil) :=
   condition:

@@ -34,6 +34,9 @@ target-element(tag) :=
       part tags[tag] = .anchor(tag)
       data::Target new(tag))
 
+code-block(content) :=
+  data::Block new(content, .tt)
+
 reference(tag, content = nil) :=
   data::ResolveElement new(
     [part]:
@@ -45,6 +48,35 @@ reference(tag, content = nil) :=
       content ||= tag
 
       data::Reference new(target, content))
+
+definitions(content) := do:
+  defs = []
+  Array(content) select [x]:
+    x match:
+      .item(name, val) ->
+        defs << [name, val]
+
+  data::Itemization new(defs)
+
+item(name, content) := .item(name, content)
+
+italic(content) := data::Element new(content, .italic)
+
+bold(content) := data::Element new(content, .bold)
+
+smaller(content) := data::Element new(content, .smaller)
+
+larger(content) := data::Element new(content, .larger)
+
+superscript(content) := data::Element new(content, .superscript)
+
+subscript(content) := data::Element new(content, .subscript)
+
+code(content) := data::Element new(content, .tt)
+
+newline := data::Element new("", .newline)
+
+no-break(content) := data::Element new(content, .no-break)
 
 decode(*cs) := do:
   part = data::Part new

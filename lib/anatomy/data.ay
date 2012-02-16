@@ -1,6 +1,6 @@
 use("atomy")
 
-data(Block(@style = nil)):
+data(Block(@content, @style = nil)):
   Table(@rows)
   Itemization(@elements)
   NestedFlow(@blocks)

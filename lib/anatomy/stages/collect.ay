@@ -13,9 +13,20 @@ pass((c: data::CollectElement), part) :=
   c action[part]
 
 pass((p: data::Paragraph), part) := do:
-  p class new(pass(p content, part))
+  p dup tap [x]:
+    x content = pass(p content, part)
 
-pass(x, _) := x
+pass(nil, _) := nil
+
+pass((s: String), _) := s
+
+pass((e: data::Element), part) :=
+  e dup tap [x]:
+    x content = pass(e content, part)
+
+pass((b: data::Block), part) :=
+  b dup tap [x]:
+    x content = pass(b content, part)
 
 
 over(part) := do:
