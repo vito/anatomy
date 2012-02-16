@@ -39,7 +39,10 @@ reference(tag, content = nil) :=
     [part]:
       target = part find-tag(tag)
       unless(target):
-        error(.undefined(tag))
+        warning(.undefined(tag))
+
+      -- TODO: fallback onto tag's display
+      content ||= tag
 
       data::Reference new(target, content))
 
