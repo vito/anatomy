@@ -56,22 +56,6 @@ data(
     @to-collect = []))
 
 
-Part open:
-  attr-accessor(.tag)
-
-  -- TODO: why can't I do Part copy := ...?
-  copy :=
-    self class new(
-      @title copy
-      @style copy
-      @body copy
-      @parts dup
-      @parent
-      @tags dup
-      @tag-prefix
-      @local-tags dup)
-
-
 -- search in order:
 -- 1. local hidden tags
 -- 2. local tags

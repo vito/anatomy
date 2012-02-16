@@ -68,7 +68,7 @@ parser(Parser):
       cs match:
         []: ""
         [x]: x
-        _: `content(~*cs)
+        _: cs
     }
 
   atomy := "[" (%atomy.expression)=e "]" { e }
@@ -108,7 +108,7 @@ parser(Parser):
 
           ~*definitions
 
-          doc := decode(~*cs))
+          doc := decode(~*body))
     }
 
 
