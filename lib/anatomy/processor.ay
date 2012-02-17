@@ -1,5 +1,7 @@
 use("atomy")
 
+require("fileutils")
+
 traverse = require("anatomy/stages/traverse")
 collect = require("anatomy/stages/collect")
 resolve = require("anatomy/stages/resolve")
@@ -17,6 +19,9 @@ process(input, renderer, output = ".") := do:
   resolved = resolve over(collected)
 
   Dir mkdir(output) unless Dir exists(output)?
-  Dir mkdir(output + "/public") unless Dir exists(output + "/public")?
+
+  FileUtils cp-r(
+    File expand-path("../../../public", _FILE)
+    output + "/public")
 
   renderer render(resolved, output)
