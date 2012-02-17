@@ -1,0 +1,67 @@
+use("atomy")
+
+hl = require("hl")
+token = require("hl/token")
+atomy = hl load("atomy")
+
+use("anatomy/html")
+base = require("anatomy/base")
+data = require("anatomy/data")
+
+
+format-inline(tokens) =
+  -- TODO: search for references for certain types (operator, identifier)
+  data::Element new(
+    t contents,
+    .class(t type tag)) for t in tokens
+
+format-block(tokens) =
+  data::Block new(
+    data::Block new(
+      format-inline(tokens)
+      .tt)
+    .class("highlight"))
+
+
+hl(x) := base code(format-inline(atomy new(x) run))
+atomy(x) := format-block(atomy new(x) run)
+
+interaction(x) := do:
+  [mod, bnd] = Atomy make-wrapper-module
+  mod use("atomy")
+
+  before-mod = Atomy::CodeLoader module
+  before-bnd = Atomy::CodeLoader context
+
+  Atomy::CodeLoader module = mod
+  Atomy::CodeLoader context = bnd
+
+  { data::Block new(
+      data::Block new(
+        x split("\n") collect [i]:
+          [ format-inline(
+              token::Token new(token::Tagged new(.caret), "> ") .
+                atomy new(i) run)
+            "\n"
+            format-inline(atomy new(Atomy::Compiler eval(i, bnd) show) run)
+            "\n"
+          ]
+        .tt)
+      .class("interaction"))
+  } ensuring:
+    Atomy::CodeLoader module = before-mod
+    Atomy::CodeLoader context = before-bnd
+
+example(x) := do:
+  data::Block new(
+    [ data::Paragraph new([data::Element new("Example:", .italic)])
+      interaction(x)
+    ]
+    .class("example"))
+
+example-segment(x) :=
+  data::Block new(
+    [ data::Paragraph new([data::Element new("Example:", .italic)])
+      format-block(atomy new(x) run)
+    ]
+    .class("example"))

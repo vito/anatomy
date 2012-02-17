@@ -123,6 +123,7 @@ render(part, out = ".") := do:
         <head:
           <title: over(part title)
           <link(type = "text/css", rel = "stylesheet", href = "public/doodle.css")
+          <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
           <script(type = "text/javascript", src = "public/jquery.js") {}
           <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
           <script(type = "text/javascript", src = i"public/tags_#{part tag}.js") {}
