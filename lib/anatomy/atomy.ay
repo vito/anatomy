@@ -1,4 +1,7 @@
 use("atomy")
+use("io")
+
+require("stringio")
 
 hl = require("hl")
 token = require("hl/token")
@@ -26,8 +29,13 @@ format-block(tokens) =
 hl(x) := base code(format-inline(atomy new(x) run))
 atomy(x) := format-block(atomy new(x) run)
 
-interaction(x) := do:
-  [mod, bnd] = Atomy make-wrapper-module
+environments = #{}
+interaction(x, where = nil) := do:
+  [mod, bnd] =
+    if(where)
+      then: environments[where] ||= Atomy make-wrapper-module
+      else: Atomy make-wrapper-module
+
   mod use("atomy")
 
   before-mod = Atomy::CodeLoader module
@@ -39,11 +47,33 @@ interaction(x) := do:
   { data::Block new(
       data::Block new(
         x split("\n") collect [i]:
+          out = StringIO new
+          err = StringIO new
+
+          tokens =
+            { with-restarts(use-tokens(ts) -> ts):
+                with-output-to(out):
+                  with-error-to(err):
+                    atomy new(
+                      Atomy::Compiler eval(i, bnd) show) run
+            } bind:
+              (e: Error) ->
+                restart(
+                  .use-tokens
+                  [ token::Token new(
+                      token::Tagged new(.gr)
+                      i"#{e name}: #{e message}")
+                  ])
+
           [ format-inline(
               token::Token new(token::Tagged new(.caret), "> ") .
                 atomy new(i) run)
             "\n"
-            format-inline(atomy new(Atomy::Compiler eval(i, bnd) show) run)
+            out string
+            unless(err string empty?):
+              <span(.gr):
+                err string
+            format-inline(tokens)
             "\n"
           ]
         .tt)
