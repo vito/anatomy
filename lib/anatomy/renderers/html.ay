@@ -26,6 +26,9 @@ over(b: data::Block) :=
     .tt ->
       <pre: over(b content)
 
+    .class(x) ->
+      <div(class = x): over(b content)
+
     nil ->
       <div: over(b content)
 
@@ -61,6 +64,9 @@ over(e: data::Element) :=
     -- TODO
     .larger ->
       <span(style = "font-size: 120%"): over(e content)
+
+    .class(x) ->
+      <span(class = x): over(e content)
 
 over(nil) := nil
 over(s: String) := s
