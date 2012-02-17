@@ -7,7 +7,7 @@ collect = require("anatomy/stages/collect")
 
 
 title(
-    content: String
+    content
     -- TODO: can't do tag = data sanitize(content)
     tag = nil
     *extra-tags) :=

@@ -122,7 +122,13 @@ content(x: Array)? := x all? .content?
 content(_)? := false
 
 sanitize(x) :=
-  x gsub(r" & ", " and ")
+  contents-of(x) gsub(r" & ", " and ")
     gsub(r"\s+", "-")
     gsub(r"[^[:alnum:]_\-:.]", "")
     downcase
+
+contents-of(s: String) := s
+contents-of(e: Element) := contents-of(e content)
+contents-of(b: Block) := contents-of(b content)
+contents-of(a: Array) := (contents-of(x) for x in a) join
+contents-of(nil) := ""

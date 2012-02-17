@@ -103,7 +103,7 @@ url(p, anchor = nil) :=
 toc-leaf(part) :=
   <li:
     <a(href = url(part)):
-      part title
+      over(part title)
 
     unless(part parts empty?):
       <ol:
@@ -180,9 +180,10 @@ render-part(part, out = ".", depth = 1) := do:
 
 search-tags(p) := do:
   tags = [
-    [ p title
+    [ data contents-of(p title)
       <span(.title):
-        <a(href = url(p)): p title
+        <a(href = url(p)):
+          over(p title)
       url(p)
     ]
     [ p tag
@@ -215,7 +216,8 @@ search-tags(p) := do:
               d
               <span(.parent):
                 " in "
-                <a(href = url(p)): p title
+                <a(href = url(p)):
+                  over(p title)
         u
       ] for [t, d, u] in search-tags(sub)
 
