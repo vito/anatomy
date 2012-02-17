@@ -1,49 +1,48 @@
-#!/usr/bin/env atomy
--- vim: ft=atomy
-
-use("atomy")
+#!/usr/bin/env rbx
+# vim: ft=ruby
 
 require("rubygems")
 require("optparse")
 
-$path unshift(File expand-path("../../lib", _FILE))
+require("atomy/boot")
 
-options = #{}
-op = OptionParser new [o]:
-  o banner = "usage: anatomy [file] [options]"
+$LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 
-  o on("-i", "--input FILE", "anatomy document") [v]:
-    options[.input] = v
+processor = require("anatomy/processor")
 
-  o on("-o", "--output DIRECTORY", "where to place output documents and files") [v]:
-    options[.output] = v
+options = {}
+op = OptionParser.new do |o|
+  o.banner = "usage: anatomy [file] [options]"
 
-op parse!
+  o.on("-i", "--input FILE", "anatomy document") do |v|
+    options[:input] = v
+  end
 
-file = options[.input] || ARGV[0]
+  o.on("-o", "--output DIRECTORY",
+       "where to place output documents and files") do |v|
+    options[:output] = v
+  end
 
-output = options[.output] || "."
+  o.on("-r", "--renderer NAME",
+       "which renderer to use (e.g. html)") do |v|
+    options[:renderer] = v
+  end
+end
 
-unless(file):
+op.parse!
+
+input = options[:input] || ARGV[0]
+output = options[:output] || "."
+renderer = options[:renderer] || "html"
+
+unless input
   puts(op help)
   exit(1)
+end
 
-mod = Atomy load(File expand-path(file))
+# a / in the renderer name implies it's external
+unless renderer.include?("/")
+  renderer = "anatomy/renderers/#{renderer}"
+end
 
-traverse = require("anatomy/stages/traverse")
-collect = require("anatomy/stages/collect")
-resolve = require("anatomy/stages/resolve")
-html = require("anatomy/renderers/html")
-part = mod doc
---p([.part, part])
-traversed = traverse over(part)
---p([.traversed, traversed])
-collected = collect over(traversed)
---p([.collected, collected])
-resolved = resolve over(collected)
---p([.resolved, resolved])
-
-Dir mkdir(output) unless Dir exists(output)?
-Dir mkdir(output + "/public") unless Dir exists(output + "/public")?
-
-html render(resolved, output)
+processor.process(input, require(renderer), output)

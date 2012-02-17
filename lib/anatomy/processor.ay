@@ -1,0 +1,22 @@
+use("atomy")
+
+traverse = require("anatomy/stages/traverse")
+collect = require("anatomy/stages/collect")
+resolve = require("anatomy/stages/resolve")
+html = require("anatomy/renderers/html")
+
+process(input, renderer, output = ".") := do:
+  input = File expand-path(input)
+  output = File expand-path(output)
+
+  mod = Atomy load(input)
+
+  part = mod doc
+  traversed = traverse over(part)
+  collected = collect over(traversed)
+  resolved = resolve over(collected)
+
+  Dir mkdir(output) unless Dir exists(output)?
+  Dir mkdir(output + "/public") unless Dir exists(output + "/public")?
+
+  renderer render(resolved, output)
