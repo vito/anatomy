@@ -39,7 +39,7 @@ target-element(tag) :=
       part tags[tag] = .anchor(tag)
       data::Target new(tag))
 
-code-block(content) :=
+verbatim(content) :=
   data::Block new(content, .tt)
 
 reference(tag, content = nil) :=
