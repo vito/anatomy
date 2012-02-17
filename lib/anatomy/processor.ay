@@ -21,7 +21,7 @@ process(input, renderer, output = ".") := do:
   Dir mkdir(output) unless Dir exists(output)?
 
   FileUtils cp-r(
-    File expand-path("../../../public", _FILE)
-    output + "/public")
+    File expand-path("../../../public/", _FILE)
+    output + "/public/")
 
   renderer render(resolved, output)
