@@ -7,7 +7,7 @@ pass((a: Array), part) :=
 
 -- TODO: (c: data::ResolveElement | data::ResolveBlock) is less precise than its parts
 pass((c: data::ResolveElement), part) :=
-  c action[part]
+  pass(c action[part], part)
 
 pass((e: data::Element), part) :=
   e dup tap [x]:
@@ -25,7 +25,7 @@ pass((p: data::Paragraph), part) := do:
     x content = pass(p content, part)
 
 pass((c: data::ResolveBlock), part) :=
-  c action[part]
+  pass(c action[part], part)
 
 pass((b: data::Block), part) :=
   b dup tap [x]:
