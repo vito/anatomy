@@ -198,7 +198,7 @@ search-tags(p) := do:
     url = tag-url(tag)
     tags <<
       [ tag name
-        tag display or
+        tag display and over(tag display) or
           <span(.tag):
             <code:
               <a(href = url):
