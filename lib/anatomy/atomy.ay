@@ -12,10 +12,19 @@ base = require("anatomy/base")
 data = require("anatomy/data")
 
 
-format-inline(tokens) =
+format-inline(tokens) = do:
   -- TODO: search for references for certain types (operator, identifier)
   data::Element new(
-    t contents,
+    -- constants, identifiers, and operators
+    if(t type tag is-in ["no", "n", "o"])
+      then:
+        data::ResolveElement new(
+          [part]:
+            tag = part find-tag(t contents)
+            if(tag)
+              then: data::Reference new(tag, t contents)
+              else: t contents)
+      else: t contents
     .class(t type tag)) for t in tokens
 
 format-block(tokens) =
