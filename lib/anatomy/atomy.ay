@@ -102,3 +102,45 @@ example-segment(x) :=
       format-block(atomy new(x) run)
     ]
     .class("example"))
+
+
+def = require("define")
+define(what, *arguments, return, body) := do:
+  thumb = Atomy::Parser parse-node(what)
+  tag-name = def message-name(thumb) to-s
+  display = format-inline(atomy lex(what))
+  data::Block new(
+    [ base target-element(tag-name, base code(display))
+      data::Block new(
+        [ data::Block new(
+            [ display
+              data::Element new(
+                " => "
+                .class("definition_result_arrow"))
+              format-inline(atomy lex(return))
+            ]
+            .tt)
+        ]
+        .class("thumb"))
+      body
+    ]
+    .class("definition"))
+
+assign(name, to, body) := do:
+  display = format-inline(atomy lex(name))
+  data::Block new(
+    [ base target-element(name, base code(display))
+      data::Block new(
+        [ data::Block new(
+            [ display
+              data::Element new(
+                " = "
+                .class("definition_result_arrow"))
+              format-inline(atomy lex(to))
+            ]
+            .tt)
+        ]
+        .class("thumb"))
+      body
+    ]
+    .class("definition"))
