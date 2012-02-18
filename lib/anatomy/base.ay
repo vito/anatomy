@@ -8,51 +8,50 @@ collect = require("anatomy/stages/collect")
 
 title(
     content
-    -- TODO: can't do tag = data sanitize(content)
-    tag = nil
-    *extra-tags) :=
+    -- TODO: can't do tag-name = data sanitize(content)
+    tag-name = nil
+    *extra-tag-names) :=
   data::MetaBlock new(
     [part]:
       part title = content
 
-      tag ||= data sanitize(content)
-      part tag = tag
-      part tags[tag] = .self
+      tag-name ||= data sanitize(content)
 
-      extra-tags each [t]:
-        part tags[t] = .self)
+      part tag = part set-tag(tag-name)
+
+      extra-tag-names each [t]:
+        part set-tag(t))
 
 table-of-contents :=
   data::MetaBlock new(
     [part]:
       part style properties << .toc)
 
-section(title, content) :=
-  decode(title(title), content)
+section(title, *tag-names, content) :=
+  decode(title(title, *tag-names), content)
 
 include-section(path) :=
   Atomy load(path) doc
 
-target-element(tag) :=
+target-element(tag-name) :=
   data::CollectElement new(
     [part]:
-      part tags[tag] = .anchor(tag)
-      data::Target new(tag))
+      part set-tag(tag-name, .anchor(tag-name))
+      data::Target new(tag-name))
 
 verbatim(content) :=
   data::Block new(content, .tt)
 
-reference(tag, content = nil) :=
+reference(tag-name, content = nil) :=
   data::ResolveElement new(
     [part]:
-      target = part find-tag(tag)
-      unless(target):
-        warning(.undefined(tag))
+      tag = part find-tag(tag-name)
+      unless(tag):
+        warning(.undefined(tag-name))
 
-      -- TODO: fallback onto tag's display
-      content ||= tag
-
-      data::Reference new(target, content))
+      data::Reference new(
+        tag
+        content or tag and tag display or tag-name))
 
 definitions(content) := do:
   defs = []

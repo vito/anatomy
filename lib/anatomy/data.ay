@@ -8,14 +8,11 @@ data(Block(@content, @style = nil)):
   MetaBlock(@action)
   TraverseBlock(@action)
   ResolveBlock(@action)
-  
+
 data(Element(@content, @style = nil)):
-  Target(@tag):
-    TOCTarget
-    PageTarget
-    Redirect(@path, @anchor)
+  Target(@name)
   TOC(@content)
-  Reference(@source, @content = nil)
+  Reference(@tag, @content = nil)
   Index(@keys, @description)
   TraverseElement(@action)
   ResolveElement(@action)
@@ -23,6 +20,8 @@ data(Element(@content, @style = nil)):
   RenderElement(@action)
 
 data(Style(@type = nil, @properties = []))
+
+data(Tag(@part, @name, @target = .self, @display = nil))
 
 data(
   Part(
@@ -49,7 +48,7 @@ data(
 
     -- tags that cannot be found by parents
     @local-tags = #{}
-    
+
     -- the primary tag used for this Part
     -- used for URIs
     @tag = nil
@@ -60,6 +59,12 @@ data(
 
 -- TODO: can't declare with Style new default (see above)
 Part style := @style ||= Style new
+
+Part set-tag(name, target = .self, display = nil) :=
+  @tags[name] = Tag new(self, name, target, display)
+
+Part set-local-tag(name, target = nil, display = nil) :=
+  @local-tags[name] = Tag new(self, name, target, display)
 
 -- search in order:
 -- 1. local hidden tags
@@ -72,42 +77,36 @@ Part style := @style ||= Style new
 --   2. tags
 --   3. siblings, searching in order
 --   4. parent ...
-Part find-tag(tag, excluding = nil) := do:
-  result =
-    catch(.found):
-      search-tag-excluding(tag, nil)
-      nil
+Part find-tag(tag, excluding = nil) :=
+  catch(.found):
+    search-tag-excluding(tag, nil)
+    nil
 
-  result match:
-    nil -> nil
+Part search-tag-excluding(name, excluding) := do:
+  found = @local-tags[name] || @tags[name]
+  throw(.found, found) if found
 
-    [where, .anchor(x)] ->
-      .anchor(where, x)
-
-    [where, .self] ->
-      .part(where)
-
-    [_, x] -> x
-
-Part search-tag-excluding(tag, excluding) := do:
-  found = @local-tags[tag] || @tags[tag]
-  throw(.found, [self, found]) if found
+  when(name == @title):
+    throw(.found, @tag)
 
   @parts each [p]:
     unless(p == excluding):
-      p search-tag(tag)
-  
-  @parent search-tag-excluding(tag, self) if @parent
+      p search-tag(name)
+
+  @parent search-tag-excluding(name, self) if @parent
 
   nil
 
 -- called from find-tag; only search exposed tags and children
-Part search-tag(tag) := do:
-  when(found = @tags[tag]):
-    throw(.found, [self, found])
+Part search-tag(name) := do:
+  when(name == @title):
+    throw(.found, @tag)
+
+  when(found = @tags[name]):
+    throw(.found, found)
 
   @parts each [p]:
-    p search-tag(tag)
+    p search-tag(name)
 
 
 Part top :=

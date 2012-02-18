@@ -7,12 +7,16 @@ use("anatomy/html")
 data = require("anatomy/data")
 
 
-source-to-url(.anchor(part, anchor)) =
-  url(part, anchor)
-source-to-url(.part(part)) =
-  url(part)
-source-to-url(.url(url)) =
-  url
+tag-url(t) =
+  t target match:
+    .anchor(x) ->
+      url(t part, x)
+
+    .self ->
+      url(t part)
+
+    .url(x) ->
+      x
 
 over(i: data::Itemization) :=
   <dl:
@@ -33,11 +37,12 @@ over(b: data::Block) :=
       <div: over(b content)
 
 over(t: data::Target) :=
-  <a(name = t tag): nil
+  <a(name = t name): nil
 over(p: data::Reference) :=
-  if(p source)
+  if(p tag)
     then:
-      <a(href = source-to-url(p source)): over(p content)
+      <a(href = tag-url(p tag)):
+        over(p content)
     else:
       <a(.undefined): over(p content)
 over(e: data::Element) :=
@@ -74,7 +79,7 @@ over(a: Array) :=
   over(x) for x in a
 
 
-filename(p) := p tag + ".html"
+filename(p) := p tag name + ".html"
 
 
 top(p) :=
@@ -91,7 +96,7 @@ top(p) :=
 url(p, anchor = nil) :=
   condition:
     top(p) != p ->
-      url(top(p)) + "#" + (anchor || p tag)
+      url(top(p)) + "#" + (anchor || p tag name)
 
     anchor ->
       filename(p) + "#" + anchor
@@ -126,7 +131,7 @@ render(part, out = ".") := do:
           <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
           <script(type = "text/javascript", src = "public/jquery.js") {}
           <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
-          <script(type = "text/javascript", src = i"public/tags_#{part tag}.js") {}
+          <script(type = "text/javascript", src = i"public/tags_#{part tag name}.js") {}
           <script(type = "text/javascript", src = "public/main.js") {}
         <body:
           <div(#main):
@@ -161,9 +166,9 @@ render(part, out = ".") := do:
 render-part(part, out = ".", depth = 1) := do:
   toc? = .toc is-in part style properties
 
-  <div(.section, id = i"section_#{part tag}"):
+  <div(.section, id = i"section_#{part tag name}"):
     <"h#{depth}"(.section_header):
-      <a(name = part tag) {}
+      <a(name = part tag name) {}
       over(part title)
 
     over(part body)
@@ -186,23 +191,18 @@ search-tags(p) := do:
           over(p title)
       url(p)
     ]
-    [ p tag
-      <span(.tag):
-        "tag: "
-        <code:
-          <a(href = url(p)): p tag
-      url(p)
-    ]
   ]
 
-  -- TODO: let tags control their display
-  p tags each-key [tag]:
-    url = source-to-url(p find-tag(tag))
+  p tags each-key [tag-name]:
+    tag = p find-tag(tag-name)
+    url = tag-url(tag)
     tags <<
-      [ tag
-        <span(.tag):
-          <code:
-            <a(href = url): tag
+      [ tag name
+        tag display or
+          <span(.tag):
+            <code:
+              <a(href = url):
+                tag name
         url
       ]
 
