@@ -13,7 +13,6 @@ data = require("anatomy/data")
 
 
 format-inline(tokens) = do:
-  -- TODO: search for references for certain types (operator, identifier)
   data::Element new(
     -- constants, identifiers, and operators
     if(t type tag is-in ["no", "n", "o"])
@@ -116,10 +115,16 @@ example-segment(x) :=
 def = require("define")
 define(what, *arguments, return, body) := do:
   thumb = Atomy::Parser parse-node(what)
-  tag-name = def message-name(thumb) to-s
+
+  message-name = def message-name(thumb) to-s
+  tag-name =
+    if(message-name =~ r"^[\p{Ll}_]")
+      then: message-name tr("_", "-")
+      else: message-name
+
   display = format-inline(atomy lex(what))
   data::Block new(
-    [ base target-element(tag-name, base code(display))
+    [ base target-element(tag-name)
       data::Block new(
         [ data::Block new(
             [ display
