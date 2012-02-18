@@ -25,7 +25,7 @@ format-block(tokens) =
       .tt)
     .class("highlight"))
 
-interactive-line(input, line, part, bnd) = do:
+interactive-line(input, line, context, bnd) = do:
   out = StringIO new
   err = StringIO new
 
@@ -37,7 +37,7 @@ interactive-line(input, line, part, bnd) = do:
               Atomy::Compiler eval(
                 input
                 bnd
-                part tag name
+                context || "interaction"
                 line) show)
     } bind:
       (e: Error) ->
@@ -79,17 +79,15 @@ interaction(x, where = nil) := do:
   Atomy::CodeLoader module = mod
   Atomy::CodeLoader context = bnd
 
-  data::ResolveBlock new(
-    [part]:
-      { data::Block new(
-          data::Block new(
-            x split("\n") collect with-index [input, line]:
-              interactive-line(input, line + 1, part, bnd)
-            .tt)
-          .class("interaction"))
-      } ensuring:
-        Atomy::CodeLoader module = before-mod
-        Atomy::CodeLoader context = before-bnd)
+  { data::Block new(
+      data::Block new(
+        x split("\n") collect with-index [input, line]:
+          interactive-line(input, line + 1, where, bnd)
+        .tt)
+      .class("interaction"))
+  } ensuring:
+    Atomy::CodeLoader module = before-mod
+    Atomy::CodeLoader context = before-bnd
 
 example(x) := do:
   data::Block new(
