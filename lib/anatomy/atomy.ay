@@ -29,6 +29,41 @@ format-block(tokens) =
 hl(x) := base code(format-inline(atomy new(x) run))
 atomy(x) := format-block(atomy new(x) run)
 
+interactive-line(input, line, part, bnd) = do:
+  out = StringIO new
+  err = StringIO new
+
+  tokens =
+    { with-restarts(use-tokens(ts) -> ts):
+        with-output-to(out):
+          with-error-to(err):
+            atomy lex(
+              Atomy::Compiler eval(
+                input
+                bnd
+                part tag name
+                line) show)
+    } bind:
+      (e: Error) ->
+        restart(
+          .use-tokens
+          [ token::Token new(
+              token::Tagged new(.gr)
+              i"#{e name}: #{e message}")
+          ])
+
+  [ format-inline(
+      token::Token new(token::Tagged new(.caret), "> ") .
+        atomy lex(input))
+    "\n"
+    out string
+    unless(err string empty?):
+      <span(.gr):
+        err string
+    format-inline(tokens)
+    "\n"
+  ]
+
 environments = #{}
 interaction(x, where = nil) := do:
   [mod, bnd] =
@@ -44,43 +79,17 @@ interaction(x, where = nil) := do:
   Atomy::CodeLoader module = mod
   Atomy::CodeLoader context = bnd
 
-  { data::Block new(
-      data::Block new(
-        x split("\n") collect [i]:
-          out = StringIO new
-          err = StringIO new
-
-          tokens =
-            { with-restarts(use-tokens(ts) -> ts):
-                with-output-to(out):
-                  with-error-to(err):
-                    atomy new(
-                      Atomy::Compiler eval(i, bnd) show) run
-            } bind:
-              (e: Error) ->
-                restart(
-                  .use-tokens
-                  [ token::Token new(
-                      token::Tagged new(.gr)
-                      i"#{e name}: #{e message}")
-                  ])
-
-          [ format-inline(
-              token::Token new(token::Tagged new(.caret), "> ") .
-                atomy new(i) run)
-            "\n"
-            out string
-            unless(err string empty?):
-              <span(.gr):
-                err string
-            format-inline(tokens)
-            "\n"
-          ]
-        .tt)
-      .class("interaction"))
-  } ensuring:
-    Atomy::CodeLoader module = before-mod
-    Atomy::CodeLoader context = before-bnd
+  data::ResolveBlock new(
+    [part]:
+      { data::Block new(
+          data::Block new(
+            x split("\n") collect with-index [input, line]:
+              interactive-line(input, line + 1, part, bnd)
+            .tt)
+          .class("interaction"))
+      } ensuring:
+        Atomy::CodeLoader module = before-mod
+        Atomy::CodeLoader context = before-bnd)
 
 example(x) := do:
   data::Block new(
