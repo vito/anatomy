@@ -33,10 +33,10 @@ section(title, *tag-names, content) :=
 include-section(path) :=
   Atomy load(path) doc
 
-target-element(tag-name) :=
+target-element(tag-name, display = nil) :=
   data::CollectElement new(
     [part]:
-      part set-tag(tag-name, .anchor(tag-name))
+      part set-tag(tag-name, .anchor(tag-name), display)
       data::Target new(tag-name))
 
 verbatim(content) :=
