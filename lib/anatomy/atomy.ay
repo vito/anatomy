@@ -25,10 +25,6 @@ format-block(tokens) =
       .tt)
     .class("highlight"))
 
-
-hl(x) := base code(format-inline(atomy new(x) run))
-atomy(x) := format-block(atomy new(x) run)
-
 interactive-line(input, line, part, bnd) = do:
   out = StringIO new
   err = StringIO new
@@ -63,6 +59,10 @@ interactive-line(input, line, part, bnd) = do:
     format-inline(tokens)
     "\n"
   ]
+
+
+hl(x) := base code(format-inline(atomy new(x) run))
+atomy(x) := format-block(atomy new(x) run)
 
 environments = #{}
 interaction(x, where = nil) := do:
