@@ -33,6 +33,10 @@ section(title, *tag-names, content) :=
 include-section(path) :=
   Atomy load(path) doc
 
+include-sections(path) := do:
+  Dir glob(path) collect [s]:
+    Atomy load(s) doc
+
 target-element(tag-name, display = nil) :=
   data::CollectElement new(
     [part]:
