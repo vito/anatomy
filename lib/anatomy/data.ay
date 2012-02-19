@@ -66,6 +66,8 @@ Part set-tag(name, target = .self, display = nil) :=
 Part set-local-tag(name, target = nil, display = nil) :=
   @local-tags[name] = Tag new(self, name, target, display)
 
+Part inspect := i"#<Part: '#{@tag name}'>"
+
 -- search in order:
 -- 1. local hidden tags
 -- 2. local tags
