@@ -62,8 +62,7 @@ interactive-line(input, line, context, bnd) = do:
     "\n"
     out string
     unless(err string empty?):
-      <span(.gr):
-        err string
+      data::Element new(err string, .class("gr"))
     format-inline(tokens)
     "\n"
   ]
