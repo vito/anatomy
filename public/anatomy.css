@@ -172,9 +172,17 @@ div.search:hover {
     padding: .6em .75em;
     margin-bottom: 1em;
 }
+.definition.macro .thumb pre {
+    /* same as unquote background */
+    background: #fff0f0;
+}
 
 .verbatim, .interaction, .highlight {
     margin: 0 1em 1em;
+}
+
+.interaction pre {
+    overflow-x: auto;
 }
 
 pre a:link,
