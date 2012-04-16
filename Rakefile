@@ -3,5 +3,5 @@ task :clean do
 end
 
 task :install do
-  sh "rm *.gem; rbx -S gem uninstall anatomy -x; rbx -S gem build anatomy.gemspec && rbx -S gem install anatomy-*.gem --no-ri --no-rdoc"
+  sh "rm *.gem; gem uninstall anatomy -x; gem build anatomy.gemspec && gem install anatomy-*.gem --no-ri --no-rdoc"
 end
