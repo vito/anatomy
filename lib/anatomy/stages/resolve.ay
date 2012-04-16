@@ -5,7 +5,6 @@ data = require("anatomy/data")
 pass((a: Array), part) :=
   pass(x, part) for x in a
 
--- TODO: (c: data::ResolveElement | data::ResolveBlock) is less precise than its parts
 pass((c: data::ResolveElement), part) :=
   pass(c action[part], part)
 
