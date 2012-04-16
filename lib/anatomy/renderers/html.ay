@@ -126,6 +126,7 @@ render(part, out = ".") := do:
     f write(
       <html {
         <head:
+          <meta("http-equiv" = "Content-Type", content = "text/html; charset=UTF-8")
           <title: over(part title)
           <link(type = "text/css", rel = "stylesheet", href = "public/anatomy.css")
           <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
