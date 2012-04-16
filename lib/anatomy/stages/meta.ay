@@ -5,22 +5,6 @@ use("atomy")
 data = require("anatomy/data")
 
 
-over((m: data::MetaBlock), part) := do:
-  m action[part]
-  nil
-
-over((a: Array), part) := do:
-  a each [x]:
-    over(x, part)
-
-  nil
-
-over((p: data::Part), part) := do:
-  part parts << p
-  p parent = part
-  part body freeze
-  nil
-
 close-paragraph(body) =
   when(body last is-a(data::Paragraph)?):
     body last closed? = true
@@ -53,12 +37,50 @@ add-content-to(x, body) = do:
   ensure-paragraph(body)
   body last content << x
 
-over(x, part) :=
+
+pass((m: data::MetaBlock), part, body = part body) := do:
+  m action[part]
+  nil
+
+pass((a: Array), part, body = part body) := do:
+  a each [x]:
+    pass(x, part, body)
+
+  nil
+
+pass((p: data::Part), part, body = part body) := do:
+  part parts << p
+  p parent = part
+  part body freeze
+  nil
+
+pass((i: data::Itemization), part, body = part body) :=
+  unless(body frozen?):
+    body <<
+      i dup tap [x]:
+        x elements collect! [n, b]:
+          body = []
+          pass(b, part, body)
+          [n, body]
+
+pass((b: data::Block), part, body = part body) :=
+  unless(body frozen?):
+    body <<
+      if(b style == .tt)
+        then: b
+        else:
+          b dup tap [x]:
+            x content = []
+            pass(b content, part, x content)
+
+pass(x, part, body = part body) :=
   condition:
-    part body frozen? -> nil
+    body frozen? -> nil
 
     data content(x)? ->
-      add-content-to(x, part body)
+      add-content-to(x, body)
 
     otherwise ->
-      part body << x
+      body << x
+
+over(x, part) := pass(x, part, part body)
