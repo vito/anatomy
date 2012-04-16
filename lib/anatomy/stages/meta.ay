@@ -30,7 +30,7 @@ ensure-paragraph(body) =
           not body last closed?):
     body << data::Paragraph new([])
 
-add-content-to((str: String), body) :=
+add-content-to((str: String), body) =
   str split("\n\n", 2) match:
     [? chomp empty?, rest]:
       close-paragraph(body)
@@ -49,8 +49,7 @@ add-content-to((str: String), body) :=
     []:
       close-paragraph(body)
 
-
-add-content-to(x, body) := do:
+add-content-to(x, body) = do:
   ensure-paragraph(body)
   body last content << x
 

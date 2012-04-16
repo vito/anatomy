@@ -12,7 +12,7 @@ pass((a: Array), part) :=
 pass((c: data::CollectElement), part) :=
   c action[part]
 
-pass((p: data::Paragraph), part) := do:
+pass((p: data::Paragraph), part) :=
   p dup tap [x]:
     x content = pass(p content, part)
 

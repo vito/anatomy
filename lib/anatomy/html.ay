@@ -12,13 +12,13 @@ attr-to-pair(`(~x = ~y)) = `(.~x -> ~y)
 macro(<(~name): ~*body):
   `(HTMLElement new(.~name, #{}, ~body))
 
-macro(<~(name)(~*attrs): ~*body):
+macro(<(~name)(~*attrs): ~*body):
   `(HTMLElement new(
       .~name
       #{ ~*(attr-to-pair(a) for a in attrs) }
       ~body))
 
-macro(<~(name)(~*attrs)):
+macro(<(~name)(~*attrs)):
   `(HTMLElement new(
       .~name
       #{ ~*(attr-to-pair(a) for a in attrs) }
