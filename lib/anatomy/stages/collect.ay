@@ -9,10 +9,10 @@ data = require("anatomy/data")
 pass((a: Array), part) :=
   pass(x, part) for x in a
 
-pass((c: data::CollectElement), part) :=
+pass((c: data CollectElement), part) :=
   c action[part]
 
-pass((p: data::Paragraph), part) :=
+pass((p: data Paragraph), part) :=
   p dup tap [x]:
     x content = pass(p content, part)
 
@@ -20,11 +20,11 @@ pass(nil, _) := nil
 
 pass((s: String), _) := s
 
-pass((e: data::Element), part) :=
+pass((e: data Element), part) :=
   e dup tap [x]:
     x content = pass(e content, part)
 
-pass((b: data::Block), part) :=
+pass((b: data Block), part) :=
   b dup tap [x]:
     x content = pass(b content, part)
 

@@ -18,14 +18,14 @@ tag-url(t) =
     .url(x) ->
       x
 
-over(i: data::Itemization) :=
+over(i: data Itemization) :=
   <dl:
     [ <dt: over(name)
       <dd: over(body)
     ] for [name, body] in i elements
-over(p: data::Paragraph) :=
+over(p: data Paragraph) :=
   <p: over(p content)
-over(b: data::Block) :=
+over(b: data Block) :=
   b style match:
     .tt ->
       <pre: over(b content)
@@ -36,16 +36,16 @@ over(b: data::Block) :=
     nil ->
       <div: over(b content)
 
-over(t: data::Target) :=
+over(t: data Target) :=
   <a(name = t name): nil
-over(p: data::Reference) :=
+over(p: data Reference) :=
   if(p tag)
     then:
       <a(href = tag-url(p tag)):
         over(p content)
     else:
       <a(.undefined): over(p content)
-over(e: data::Element) :=
+over(e: data Element) :=
   e style match:
     .italic ->
       <em: over(e content)

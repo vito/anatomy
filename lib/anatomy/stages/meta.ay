@@ -6,13 +6,13 @@ data = require("anatomy/data")
 
 
 close-paragraph(body) =
-  when(body last is-a(data::Paragraph)?):
+  when(body last is-a(data Paragraph)?):
     body last closed? = true
 
 ensure-paragraph(body) =
-  unless(body last is-a(data::Paragraph)? and
+  unless(body last is-a(data Paragraph)? and
           not body last closed?):
-    body << data::Paragraph new([])
+    body << data Paragraph new([])
 
 add-content-to((str: String), body) =
   str split("\n\n", 2) match:
@@ -38,7 +38,7 @@ add-content-to(x, body) = do:
   body last content << x
 
 
-pass((m: data::MetaBlock), part, body = part body) := do:
+pass((m: data MetaBlock), part, body = part body) := do:
   m action[part]
   nil
 
@@ -48,13 +48,13 @@ pass((a: Array), part, body = part body) := do:
 
   nil
 
-pass((p: data::Part), part, body = part body) := do:
+pass((p: data Part), part, body = part body) := do:
   part parts << p
   p parent = part
   part body freeze
   nil
 
-pass((i: data::Itemization), part, body = part body) :=
+pass((i: data Itemization), part, body = part body) :=
   unless(body frozen?):
     body <<
       i dup tap [x]:
@@ -63,7 +63,7 @@ pass((i: data::Itemization), part, body = part body) :=
           pass(b, part, body)
           [n, body]
 
-pass((b: data::Block), part, body = part body) :=
+pass((b: data Block), part, body = part body) :=
   unless(body frozen?):
     body <<
       if(b style == .tt)

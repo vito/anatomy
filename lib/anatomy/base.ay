@@ -11,7 +11,7 @@ title(
     -- TODO: can't do tag-name = data sanitize(content)
     tag-name = nil
     *extra-tag-names) :=
-  data::MetaBlock new(
+  data MetaBlock new(
     [part]:
       part title = content
 
@@ -23,7 +23,7 @@ title(
         part set-tag(t))
 
 table-of-contents :=
-  data::MetaBlock new(
+  data MetaBlock new(
     [part]:
       part style properties << .toc)
 
@@ -38,22 +38,22 @@ include-sections(path) := do:
     Atomy load(s) doc
 
 target-element(tag-name, display = nil) :=
-  data::CollectElement new(
+  data CollectElement new(
     [part]:
       part set-tag(tag-name, .anchor(tag-name), display)
-      data::Target new(tag-name))
+      data Target new(tag-name))
 
 verbatim(content) :=
-  data::Block new(content, .tt)
+  data Block new(content, .tt)
 
 reference(tag-name, content = nil) :=
-  data::ResolveElement new(
+  data ResolveElement new(
     [part]:
       tag = part find-tag(tag-name)
       unless(tag):
         warning(.undefined(tag-name))
 
-      data::Reference new(
+      data Reference new(
         tag
         content or tag and tag display or tag-name))
 
@@ -64,30 +64,30 @@ definitions(content) := do:
       .item(name, val) ->
         defs << [name, val]
 
-  data::Itemization new(defs)
+  data Itemization new(defs)
 
 item(name, content) := .item(name, content)
 
-italic(content) := data::Element new(content, .italic)
+italic(content) := data Element new(content, .italic)
 
-bold(content) := data::Element new(content, .bold)
+bold(content) := data Element new(content, .bold)
 
-smaller(content) := data::Element new(content, .smaller)
+smaller(content) := data Element new(content, .smaller)
 
-larger(content) := data::Element new(content, .larger)
+larger(content) := data Element new(content, .larger)
 
-superscript(content) := data::Element new(content, .superscript)
+superscript(content) := data Element new(content, .superscript)
 
-subscript(content) := data::Element new(content, .subscript)
+subscript(content) := data Element new(content, .subscript)
 
-code(content) := data::Element new(content, .tt)
+code(content) := data Element new(content, .tt)
 
-newline := data::Element new("", .newline)
+newline := data Element new("", .newline)
 
-no-break(content) := data::Element new(content, .no-break)
+no-break(content) := data Element new(content, .no-break)
 
 decode(*cs) := do:
-  part = data::Part new
+  part = data Part new
 
   meta over(cs, part)
 

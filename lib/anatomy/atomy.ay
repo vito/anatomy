@@ -15,41 +15,41 @@ data = require("anatomy/data")
 
 
 format-inline(tokens, link-only = nil) = do:
-  data::Element new(
+  data Element new(
     -- constants, identifiers, and operators
     if(link-only and t contents is-in link-only or
         not link-only and t type tag is-in ["no", "n", "o"])
       then:
-        data::ResolveElement new(
+        data ResolveElement new(
           [part]:
             tag = part find-tag(t contents)
             if(tag)
-              then: data::Reference new(tag, t contents)
+              then: data Reference new(tag, t contents)
               else: t contents)
       else: t contents
     .class(t type tag)) for t in tokens
 
 format-block(tokens, link-only = nil) =
-  data::Block new(
+  data Block new(
     base verbatim(format-inline(tokens, link-only))
     .class("highlight"))
 
 -- redirect ALL stdout/stderr for interaction
 with-all-output-to(out, err) &action = do:
-  before-out = io::OutputPort instance-variable-get(."@default")
-  before-err = io::ErrorPort instance-variable-get(."@default")
+  before-out = io OutputPort instance-variable-get(."@default")
+  before-err = io ErrorPort instance-variable-get(."@default")
 
-  { io::OutputPort instance-variable-set(."@default", out)
-    io::ErrorPort instance-variable-set(."@default", err)
+  { io OutputPort instance-variable-set(."@default", out)
+    io ErrorPort instance-variable-set(."@default", err)
 
     io with-output-to(out):
       io with-error-to(err):
         action call
   } ensuring:
-    io::OutputPort instance-variable-set(."@default", before-out)
-    io::ErrorPort instance-variable-set(."@default", before-err)
+    io OutputPort instance-variable-set(."@default", before-out)
+    io ErrorPort instance-variable-set(."@default", before-err)
 
-interactive-line(input, line, context, bnd) = do:
+interactive-line(mod, input, line, context) = do:
   out = StringIO new
   err = StringIO new
 
@@ -57,11 +57,7 @@ interactive-line(input, line, context, bnd) = do:
     { with-restarts(use-tokens(ts) -> ts):
         res =
           with-all-output-to(out, err):
-            Atomy::Compiler eval(
-                input
-                bnd
-                context || "interaction"
-                line) tap:
+            mod eval(input, line) tap:
               -- wait for output from spawned actors
               sleep(0.01)
 
@@ -71,18 +67,18 @@ interactive-line(input, line, context, bnd) = do:
       (e: Error) ->
         restart(
           .use-tokens
-          [ token::Token new(
-              token::Tagged new(.gr)
+          [ token Token new(
+              token Tagged new(.gr)
               i"#{e name}: #{e message}")
           ])
 
   [ format-inline(
-      token::Token new(token::Tagged new(.caret), "> ") .
+      token Token new(token Tagged new(.caret), "> ") .
         atomy lex(input))
     "\n"
     out string
     unless(err string empty?):
-      data::Element new(err string, .class("gr"))
+      data Element new(err string, .class("gr"))
     format-inline(output-tokens)
     "\n"
   ]
@@ -91,45 +87,36 @@ interactive-line(input, line, context, bnd) = do:
 hl(x) := base code(format-inline(atomy new(x) run))
 atomy(x) := format-block(atomy new(x) run)
 
-new-interaction-env() =
-  Atomy make-wrapper-module tap [mod, _]:
+new-interaction-env(where = nil) =
+  Atomy Module new(where || "interaction") tap [mod]:
     mod use("atomy")
 
 environments = #{}
 interaction(x, where = nil) := do:
-  [mod, bnd] =
+  mod =
     if(where)
       then:
-        environments[where] ||= new-interaction-env
+        environments[where] ||= new-interaction-env(where)
       else:
-        new-interaction-env
+        new-interaction-env(where)
 
-  before-mod = Atomy::CodeLoader module
-  before-bnd = Atomy::CodeLoader context
-
-  Atomy::CodeLoader module = mod
-  Atomy::CodeLoader context = bnd
-
-  { data::Block new(
-      data::Block new(
-        x split("\n") collect with-index [input, line]:
-          interactive-line(input, line + 1, where, bnd)
-        .tt)
-      .class("interaction"))
-  } ensuring:
-    Atomy::CodeLoader module = before-mod
-    Atomy::CodeLoader context = before-bnd
+  data Block new(
+    data Block new(
+      x split("\n") collect with-index [input, line]:
+        interactive-line(mod, input, line + 1, where)
+      .tt)
+    .class("interaction"))
 
 example(x, where = nil) := do:
-  data::Block new(
-    [ data::Paragraph new([data::Element new("Example:", .italic)])
+  data Block new(
+    [ data Paragraph new([data Element new("Example:", .italic)])
       interaction(x, where)
     ]
     .class("example"))
 
 example-segment(x) :=
-  data::Block new(
-    [ data::Paragraph new([data::Element new("Example:", .italic)])
+  data Block new(
+    [ data Paragraph new([data Element new("Example:", .italic)])
       format-block(atomy new(x) run)
     ]
     .class("example"))
@@ -137,7 +124,7 @@ example-segment(x) :=
 
 def = require("define")
 define(what, *rules, returns, body) := do:
-  thumb = Atomy::Parser parse-node(what)
+  thumb = Atomy Parser parse-node(what)
 
   message-name = def message-name(thumb) to-s
   tag-name =
@@ -146,12 +133,12 @@ define(what, *rules, returns, body) := do:
       else: message-name
 
   display = format-inline(atomy lex(what), [tag-name])
-  data::Block new(
+  data Block new(
     [ base target-element(tag-name)
-      data::Block new(
-        [ data::Block new(
+      data Block new(
+        [ data Block new(
             [ display
-              data::Element new(
+              data Element new(
                 " => "
                 .class("definition_result_arrow"))
               format-inline(atomy lex(returns))
@@ -166,12 +153,12 @@ define(what, *rules, returns, body) := do:
 
 assign(name, to, body) := do:
   display = format-inline(atomy lex(name), [name])
-  data::Block new(
+  data Block new(
     [ base target-element(name)
-      data::Block new(
-        [ data::Block new(
+      data Block new(
+        [ data Block new(
             [ display
-              data::Element new(
+              data Element new(
                 " = "
                 .class("definition_result_arrow"))
               format-inline(atomy lex(to))
@@ -183,31 +170,31 @@ assign(name, to, body) := do:
     ]
     .class("definition", "assign"))
 
-find-tags(tags, c: Atomy::AST::Constant) = tags << c name to-s
+find-tags(tags, c: Atomy AST Constant) = tags << c name to-s
 find-tags(tags, `((~what)(~*_))) = find-tags(tags, what)
 find-tags(tags, `(~what: ~*childs)) = do:
   find-tags(tags, what)
   find-tags(tags, c) for c in childs
 
 data(tree, body) := do:
-  tree-ast = Atomy::Parser parse-node(tree)
+  tree-ast = Atomy Parser parse-node(tree)
 
   tag-names = []
   find-tags(tag-names, tree-ast)
 
   display = format-inline(atomy lex(tree), tag-names)
-  data::Block new(
+  data Block new(
     [ base target-element(name) for name in tag-names
-      data::Block new([base verbatim(display)], .class("thumb"))
+      data Block new([base verbatim(display)], .class("thumb"))
       body
     ]
     .class("definition", "data"))
 
 macro(pattern, *tag-names, result, body) := do:
   display = format-inline(atomy lex(pattern), tag-names)
-  data::Block new(
+  data Block new(
     [ base target-element(name) for name in tag-names
-      data::Block new([base verbatim(display)], .class("thumb"))
+      data Block new([base verbatim(display)], .class("thumb"))
       body
     ]
     .class("definition", "macro"))

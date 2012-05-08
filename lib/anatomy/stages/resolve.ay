@@ -5,28 +5,28 @@ data = require("anatomy/data")
 pass((a: Array), part) :=
   pass(x, part) for x in a
 
-pass((c: data::ResolveElement), part) :=
+pass((c: data ResolveElement), part) :=
   pass(c action[part], part)
 
-pass((e: data::Element), part) :=
+pass((e: data Element), part) :=
   e dup tap [x]:
     x content = pass(e content, part)
 
-pass((i: data::Itemization), part) :=
+pass((i: data Itemization), part) :=
   i dup tap [x]:
     x elements =
       [ pass(name, part)
         pass(body, part)
       ] for [name, body] in i elements
 
-pass((p: data::Paragraph), part) := do:
+pass((p: data Paragraph), part) := do:
   p dup tap [x]:
     x content = pass(p content, part)
 
-pass((c: data::ResolveBlock), part) :=
+pass((c: data ResolveBlock), part) :=
   pass(c action[part], part)
 
-pass((b: data::Block), part) :=
+pass((b: data Block), part) :=
   b dup tap [x]:
     x content = pass(b content, part)
 
