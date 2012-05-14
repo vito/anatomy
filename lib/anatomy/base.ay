@@ -44,7 +44,7 @@ target-element(tag-name, display = nil) :=
       data Target new(tag-name))
 
 verbatim(content) :=
-  data Block new(content, .tt)
+  data Block new(content, .verbatim)
 
 reference(tag-name, content = nil) :=
   data ResolveElement new(

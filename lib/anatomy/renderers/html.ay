@@ -30,6 +30,9 @@ over(b: data Block) :=
     .tt ->
       <pre: over(b content)
 
+    .verbatim ->
+      <pre(.verbatim): over(b content)
+
     .class(*classes) ->
       <div(class = classes join(" ")): over(b content)
 

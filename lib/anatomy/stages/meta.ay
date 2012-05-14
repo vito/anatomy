@@ -66,9 +66,12 @@ pass((i: data Itemization), part, body = part body) :=
 pass((b: data Block), part, body = part body) :=
   unless(body frozen?):
     body <<
-      if(b style == .tt)
-        then: b
-        else:
+      b style match:
+        .tt -> b
+
+        .verbatim -> b
+
+        _ ->
           b dup tap [x]:
             x content = []
             pass(b content, part, x content)
