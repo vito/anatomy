@@ -71,6 +71,8 @@ pass((b: data Block), part, body = part body) :=
 
         .verbatim -> b
 
+        .header(_) -> b
+
         _ ->
           b dup tap [x]:
             x content = []

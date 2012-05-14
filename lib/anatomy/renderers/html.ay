@@ -36,6 +36,9 @@ over(b: data Block) :=
     .class(*classes) ->
       <div(class = classes join(" ")): over(b content)
 
+    .header(depth) ->
+      <"h#{depth}": over(b content)
+
     nil ->
       <div: over(b content)
 
