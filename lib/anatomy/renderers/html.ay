@@ -134,6 +134,11 @@ render(part, out = ".") := do:
   File open(i"#{out}/public/tags_#{part tag name}.js", "w") [f]:
     f write(i"var SEARCH_TAGS = #{tags to-json};")
 
+  class =
+    if(part style properties empty?)
+      then: "normal"
+      else: part style properties collect .to-s join(" ")
+
   File open(i"#{out}/#{filename(part)}", "w") [f]:
     f write("<!DOCTYPE html>")
     f write(
@@ -147,7 +152,7 @@ render(part, out = ".") := do:
           <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
           <script(type = "text/javascript", src = i"public/tags_#{part tag name}.js") {}
           <script(type = "text/javascript", src = "public/main.js") {}
-        <body:
+        <body(class = class):
           <div(#main):
             <div(#content):
               render-part(part, out)
