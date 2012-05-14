@@ -14,7 +14,7 @@ data = require("anatomy/data")
 
 
 
-format-inline(tokens, link-only = nil) = do:
+format-inline(tokens, link-only = nil) =
   data Element new(
     -- constants, identifiers, and operators
     if(link-only and t contents is-in link-only or
