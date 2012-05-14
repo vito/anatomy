@@ -63,6 +63,15 @@ pass((i: data Itemization), part, body = part body) :=
           pass(b, part, body)
           [n, body]
 
+pass((l: data List), part, body = part body) :=
+  unless(body frozen?):
+    body <<
+      l dup tap [x]:
+        x elements collect! [b]:
+          body = []
+          pass(b, part, body)
+          body
+
 pass((b: data Block), part, body = part body) :=
   unless(body frozen?):
     body <<

@@ -8,6 +8,8 @@ data(Block(@content, @style = nil)):
   MetaBlock(@action)
   TraverseBlock(@action)
   ResolveBlock(@action)
+  List(@elements):
+    OrderedList(@elements)
 
 data(Element(@content, @style = nil)):
   Target(@name)

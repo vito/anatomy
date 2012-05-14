@@ -23,6 +23,12 @@ over(i: data Itemization) :=
     [ <dt: over(name)
       <dd: over(body)
     ] for [name, body] in i elements
+over(l: data List) :=
+  <ul:
+    <li{ over(body) } for body in l elements
+over(l: data OrderedList) :=
+  <ol:
+    <li{ over(body) } for body in l elements
 over(p: data Paragraph) :=
   <p: over(p content)
 over(b: data Block) :=

@@ -70,6 +70,10 @@ item(name, content) := .item(name, content)
 
 italic(content) := data Element new(content, .italic)
 
+list(*elements) := data List new(elements)
+
+ordered-list(*elements) := data OrderedList new(elements)
+
 bold(content) := data Element new(content, .bold)
 
 smaller(content) := data Element new(content, .smaller)
