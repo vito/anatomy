@@ -8,7 +8,10 @@ pass((a: Array), part) :=
 pass((c: data ResolveElement), part) :=
   pass(c action[part], part)
 
-pass((e: data Element), part) :=
+pass((e: data Element), part) := do:
+  unless(e class == data Element):
+    warning(.did-not-traverse(e class))
+
   e dup tap [x]:
     x content = pass(e content, part)
 
@@ -26,7 +29,10 @@ pass((p: data Paragraph), part) := do:
 pass((c: data ResolveBlock), part) :=
   pass(c action[part], part)
 
-pass((b: data Block), part) :=
+pass((b: data Block), part) := do:
+  unless(b class == data Block):
+    warning(.did-not-traverse(b class))
+
   b dup tap [x]:
     x content = pass(b content, part)
 

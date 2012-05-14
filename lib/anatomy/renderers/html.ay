@@ -48,6 +48,7 @@ over(p: data Reference) :=
         over(p content)
     else:
       <a(.undefined): over(p content)
+over(r: data ResolveElement) := error(.did-not-resolve(r))
 over(e: data Element) :=
   e style match:
     .italic ->
