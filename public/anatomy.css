@@ -291,7 +291,8 @@ table th, table td {
     overflow: hidden;
     background: #f0f0f0;
 }
-.slides #content {
+.slides #main {
+    margin: 0;
     padding: 0;
     position: relative;
     background: #f0f0f0;
@@ -299,10 +300,13 @@ table th, table td {
     width: auto;
     overflow: hidden;
 }
-.slides #content > h1 {
+.slides > .search {
     display: none;
 }
-.slides #content > p {
+.slides #content .section > .section_header {
+    display: none;
+}
+.slides #content .section > p {
     display: none;
 }
 .slides #sidebar {
@@ -351,6 +355,7 @@ table th, table td {
 }
 .slide li p {
     font-size: 1em;
+    margin: 0;
     padding-bottom: .5em;
 }
 .slide.title,
@@ -375,6 +380,7 @@ table th, table td {
     margin: 0 auto;
     line-height: 1.4em;
     text-align: center;
+    padding-bottom: 1em;
 }
 .slide.title_only h1 {
     text-align: center;

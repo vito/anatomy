@@ -26,7 +26,9 @@ function positionSlides() {
     var initialPos = -(SLIDE_WIDTH / 2);
 
     if (window.location.hash) {
-        position = parseInt(window.location.hash.slice(1));
+        where = window.location.hash.slice(1).split(",");
+        position = parseInt(where[0]);
+        detail[position] = parseInt(where[1]) || 0;
         initialPos -= (SLIDE_WIDTH + X_OFFSET) * position;
     }
 
@@ -202,7 +204,8 @@ function moveX(diff) {
             "duration": 250,
             "complete": (function(){
                 animating = false;
-                window.location.hash = position;
+                window.location.hash =
+                    position + "," + detail[position];
             })
         });
     };
@@ -218,6 +221,8 @@ function moveY(diff) {
             "duration": 250,
             "complete": (function(){
                 animating = false;
+                window.location.hash =
+                    position + "," + detail[position];
             })
         });
     };

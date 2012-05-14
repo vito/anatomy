@@ -1,0 +1,48 @@
+use("atomy")
+
+data = require("anatomy/data")
+
+
+slides :=
+  data MetaBlock new(
+    [part]:
+      part style properties << .slides)
+
+
+title-slide(title) := do:
+  data Block new(
+    data Block new(title, .header(1))
+    .class("slide title_only"))
+
+title-slide(title, subtitle) :=
+  data Block new(
+    data Block new(
+      [ data Block new(title, .header(1))
+        subtitle
+      ]
+      .class("body"))
+    .class("slide title"))
+
+
+slide(title, body) :=
+  data Block new(
+    data Block new(
+      [ data Block new(title, .header(2))
+        body
+      ]
+      .class("body"))
+    .class("slide"))
+
+detail(title, body) :=
+  data Block new(
+    data Block new(
+      [ data Block new(
+          [ title
+            " "
+            data Element new("(cont'd)", .class("continue"))
+          ]
+          .header(2))
+        body
+      ]
+      .class("body"))
+    .class("slide continue"))
