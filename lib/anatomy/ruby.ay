@@ -1,0 +1,174 @@
+use("atomy")
+
+require("stringio")
+
+hl = require("hl")
+token = require("hl/token")
+ruby = hl load("ruby")
+
+use("anatomy/html")
+base = require("anatomy/base")
+data = require("anatomy/data")
+
+def = require("define")
+
+
+format-inline(tokens, link-only = nil) =
+  data Element new(
+    -- constants, identifiers, and operators
+    if(link-only and t contents is-in link-only or
+        not link-only and t type tag is-in ["no", "nf", "n", "o"])
+      then:
+        data ResolveElement new(
+          [part]:
+            tag = part find-tag(t contents)
+            if(tag)
+              then: data Reference new(tag, t contents)
+              else: t contents)
+      else: t contents
+    .class(t type tag)) for t in tokens
+
+
+format-block(tokens, link-only = nil) =
+  data Block new(
+    base verbatim(format-inline(tokens, link-only))
+    .class("highlight"))
+
+
+with-all-output-to(out, err) &action = do:
+  before-out = $stdout
+  before-err = $stderr
+
+  { $stdout = out
+    $stderr = err
+
+    action call
+  } ensuring:
+    $stdout = before-out
+    $stderr = before-err
+
+
+interactive-line(bnd, input, line, context) = do:
+  out = StringIO new
+  err = StringIO new
+
+  output-tokens =
+    { with-restarts(use-tokens(ts) -> ts):
+        res =
+          with-all-output-to(out, err):
+            bnd eval(input) tap:
+              -- wait for output from spawned actors
+              sleep(0.01)
+
+        -- shorten the long-form inspections that show the ivars
+        ruby lex(res inspect sub(r"#<([^\s]+)\s+@.*$", "#<\\1>"))
+    } bind:
+      (e: Error):
+        restart(
+          .use-tokens
+          [ token Token new(
+              token Tagged new(.gr)
+              i"#{e name}: #{e message}")
+          ])
+
+  [ format-inline(
+      token Token new(token Tagged new(.caret), "> ") .
+        ruby lex(input))
+    "\n"
+    out string
+    unless(err string empty?):
+      data Element new(err string, .class("gr"))
+    format-inline(output-tokens)
+    "\n"
+  ]
+
+
+environments = #{}
+new-interaction-env() = binding
+take-environment(name) =
+  if(name)
+    then:
+      environments[name] ||= new-interaction-env
+    else:
+      new-interaction-env
+
+
+hl(x) := base code(format-inline(ruby new(x) run))
+
+ruby(x) := format-block(ruby new(x) run)
+
+
+evaluate(code, where = nil) := do:
+  take-environment(where) eval(code)
+  nil
+
+
+interaction(x, where = nil) := do:
+  bnd = take-environment(where)
+
+  data Block new(
+    data Block new(
+      x split("\n") collect with-index [input, line]:
+        interactive-line(bnd, input, line + 1, where)
+      .tt)
+    .class("interaction"))
+
+
+example(x, where = nil) := do:
+  data Block new(
+    [ data Paragraph new([data Element new("Example:", .italic)])
+      interaction(x, where)
+    ]
+    .class("example"))
+
+
+example-segment(x) :=
+  data Block new(
+    [ data Paragraph new([data Element new("Example:", .italic)])
+      format-block(ruby new(x) run)
+    ]
+    .class("example"))
+
+
+define(what, *rules, returns, body) := do:
+  thumb = what to-ast
+
+  message-name = thumb name to-s
+
+  display = format-inline(ruby lex(what), [message-name])
+  data Block new(
+    [ base target-element(message-name)
+      data Block new(
+        [ data Block new(
+            [ display
+              data Element new(
+                " => "
+                .class("definition_result_arrow"))
+              format-inline(ruby lex(returns))
+              ["\n  | ", format-inline(ruby lex(rule))] for rule in rules
+            ]
+            .tt)
+        ]
+        .class("thumb"))
+      body
+    ]
+    .class("definition"))
+
+assign(name, to, body) := do:
+  display = format-inline(ruby lex(name), [name])
+  data Block new(
+    [ base target-element(name)
+      data Block new(
+        [ data Block new(
+            [ display
+              data Element new(
+                " = "
+                .class("definition_result_arrow"))
+              format-inline(ruby lex(to))
+            ]
+            .tt)
+        ]
+        .class("thumb"))
+      body
+    ]
+    .class("definition", "assign"))
