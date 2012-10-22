@@ -17,7 +17,7 @@ title(
 
       tag-name ||= data sanitize(content)
 
-      part tag = part set-tag(tag-name)
+      part tag = part set-tag(tag-name, .self, content)
 
       extra-tag-names each [t]:
         part set-tag(t))
