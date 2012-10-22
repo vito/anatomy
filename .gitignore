@@ -5,3 +5,4 @@ _play/
 .rbx/
 .rbenv-gemsets
 Gemfile.lock
+.DS_Store
