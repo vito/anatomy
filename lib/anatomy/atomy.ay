@@ -194,7 +194,7 @@ macro(pattern, *tag-names, result, body) := do:
   display = format-inline(atomy lex(pattern), tag-names)
   data Block new(
     [ base target-element(name) for name in tag-names
-      data Block new([base verbatim(display)], .class("thumb"))
+      data Block new([data Block new([display], .tt)], .class("thumb"))
       body
     ]
     .class("definition", "macro"))
