@@ -228,7 +228,7 @@ search-tags(p) := do:
   p parts each [sub]:
     tags +=
       [ t
-        if(d attributes[.class] == "with_parent")
+        if(d is-a(HTMLElement)? and d attributes[.class] == "with_parent")
           then: d
           else:
             <span(.with-parent):
