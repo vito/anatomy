@@ -57,9 +57,7 @@ interactive-line(mod, input, line, context) = do:
     { with-restarts(use-tokens(ts) -> ts):
         res =
           with-all-output-to(out, err):
-            mod eval(input, line) tap:
-              -- wait for output from spawned actors
-              sleep(0.01)
+            mod eval(input, line)
 
         -- shorten the long-form inspections that show the ivars
         atomy lex(pretty show(res) sub(r"#<([^\s]+)\s+@.*$", "#<\\1>"))

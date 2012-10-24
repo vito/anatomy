@@ -56,9 +56,7 @@ interactive-line(bnd, input, line, context) = do:
     { with-restarts(use-tokens(ts) -> ts):
         res =
           with-all-output-to(out, err):
-            bnd eval(input) tap:
-              -- wait for output from spawned actors
-              sleep(0.01)
+            bnd eval(input)
 
         -- shorten the long-form inspections that show the ivars
         ruby lex(res inspect sub(r"#<([^\s]+)\s+@.*$", "#<\\1>"))
