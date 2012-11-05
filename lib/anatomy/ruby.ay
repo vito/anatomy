@@ -96,9 +96,13 @@ hl(x) := base code(format-inline(ruby new(x) run))
 ruby(x) := format-block(ruby new(x) run)
 
 
-evaluate(code, where = nil) := do:
-  take-environment(where) eval(code)
-  nil
+evaluate(code, where = nil) :=
+  { with-restarts(err(msg) -> data Element new(msg, .class("gr"))):
+      take-environment(where) eval(code)
+      nil
+  } bind:
+    (e: Error):
+      /restart(.err, i"#{e name}: #{e message}")
 
 
 interaction(x, where = nil) := do:
