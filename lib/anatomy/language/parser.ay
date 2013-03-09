@@ -9,6 +9,11 @@ parser(Parser):
 
       str gsub(r"\n {0,#{n}}", "\n")!
 
+    word(l, x) := do:
+      w = Atomy AST Word new(#{ .text -> x })
+      w line = l
+      w
+
   %atomy := Atomy Parser
 
   line := { current-line }
@@ -45,12 +50,10 @@ parser(Parser):
 
   escaped := [
     l=(line) "\\" n=(%atomy(identifier)) as=(argument+) {
-      `((~(Atomy AST Word new(l, n)))(~*as))
+      `((~word(l, n))(~*as))
     }
 
-    l=(line) "\\" n=(%atomy(identifier)) {
-      Atomy AST Word new(l, n)
-    }
+    l=(line) "\\" n=(%atomy(identifier)) { word(l, n) }
 
     l=(line) "\\" "(" e=(%atomy(expression)) ")" { e }
   ]
