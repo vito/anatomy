@@ -89,6 +89,9 @@ over(e: data Element) :=
     .hyperlink(url) ->
       <a(href = url): over(e content)
 
+    .margin-note ->
+      <blockquote: over(e content)
+
 over(nil) := nil
 over(s: String) := s
 over(a: Array) :=
