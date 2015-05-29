@@ -57,7 +57,10 @@ data(
 
     -- content that is inspected during the collect pass,
     -- but doesn't produce output
-    @to-collect = []))
+    @to-collect = []
+
+    -- dependent assets
+    @assets = []))
 
 -- TODO: can't declare with Style new default (see above)
 Part style := @style ||= Style new

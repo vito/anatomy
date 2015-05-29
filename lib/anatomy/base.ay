@@ -61,6 +61,18 @@ reference(tag-name, content = nil) :=
         tag
         content or tag and tag display or tag-name))
 
+centered(content) :=
+  data Element new(content, .centered)
+
+image(asset-path, alt-text = "") :=
+  data ResolveElement new(
+    [part]:
+      part assets << File expand-path(asset-path)
+
+      data Element new(
+        alt-text
+        .image(File basename(asset-path))))
+
 definitions(content) := do:
   defs = []
   Array(content) select [x]:
