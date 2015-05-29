@@ -5,6 +5,7 @@ meta = require("anatomy/stages/meta")
 traverse = require("anatomy/stages/traverse")
 collect = require("anatomy/stages/collect")
 
+hl = require("hl")
 
 title(
     content
@@ -45,6 +46,9 @@ target-element(tag-name, display = nil) :=
 
 verbatim(content) :=
   data Block new(content, .verbatim)
+
+hyperlink(url, content) :=
+  data Element new(content, .hyperlink(url))
 
 reference(tag-name, content = nil) :=
   data ResolveElement new(

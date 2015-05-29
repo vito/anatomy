@@ -86,6 +86,9 @@ over(e: data Element) :=
     .class(*classes) ->
       <span(class = classes join(" ")): over(e content)
 
+    .hyperlink(url) ->
+      <a(href = url): over(e content)
+
 over(nil) := nil
 over(s: String) := s
 over(a: Array) :=
