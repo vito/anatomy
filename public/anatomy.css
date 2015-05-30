@@ -19,10 +19,13 @@ body {
 }
 
 code {
+  font-size: 14px;
   background: #e0e0e0;
   padding: 2px 5px;
   border-radius: 5px;
 }
+
+h1 code, h2 code, h3 code { font-size: 1em; }
 
 a:link {
   text-decoration: none;
@@ -30,6 +33,9 @@ a:link {
 }
 a:visited {
   color: #aa759f;
+}
+a:hover {
+  text-decoration: underline;
 }
 
 ol, ul {
@@ -79,10 +85,6 @@ pre {
 	line-height: 24px;
 }
 
-code {
-  font-size: 14px;
-}
-
 blockquote {
 	font-size: 17px;
 	font-weight: 400;
@@ -115,8 +117,8 @@ dd {
 }
 
 #main {
-  width: 43em;
-  margin-left: 14em;
+  width: 700px;
+  margin-left: 220px;
 }
 
 #content {
@@ -125,8 +127,8 @@ dd {
 
 #sidebar {
   color: #777;
-  padding: 2em;
-  width: 10em;
+  padding: 32px;
+  width: 136px;
   height: 100%;
   overflow: auto;
   position: fixed;
@@ -135,7 +137,7 @@ dd {
   bottom: 0;
 }
 .search {
-  width: 15em;
+  width: 200px;
   position: fixed;
   top: 2em;
   right: 2em;
@@ -145,23 +147,23 @@ div.search:hover {
   opacity: 1;
 }
 .search #search {
-  width: 15em;
-  padding: .4em .5em .3em;
-  border: .25em solid #eee;
+  width: 186px;
+  padding: 5px;
+  border: 2px solid #eee;
 }
 .search .search_results {
   margin: 0;
-  border: .25em solid #eee;
+  border: 2px solid #eee;
   border-top: 0;
   display: none;
   background: #fff;
 }
 .search .search_results li {
   list-style: none;
-  padding: .25em .5em;
+  padding: 5px;
 }
 .search .search_results .parent {
-  font-size: .9em;
+  font-size: 12px;
   font-style: italic;
   color: #555;
 }
