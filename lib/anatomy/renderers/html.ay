@@ -1,5 +1,6 @@
 use("atomy")
 use("io")
+use("dynamic")
 
 require("json")
 require("fileutils")
@@ -49,13 +50,16 @@ over(b: data Block) :=
     nil ->
       <div: over(b content)
 
+in-reference? = dynamic(false)
+
 over(t: data Target) :=
   <a(name = t name): nil
 over(p: data Reference) :=
   if(p tag)
     then:
       <a(href = tag-url(p tag)):
-        over(p content)
+        with(in-reference? = true):
+          over(p content)
     else:
       <a(.undefined): over(p content)
 over(r: data ResolveElement) := error(.did-not-resolve(r))
@@ -101,6 +105,10 @@ over(e: data Element) :=
 
     .centered ->
       <div(style = "text-align: center"): over(e content)
+
+    .aux ->
+      unless(^(in-reference?)):
+        over(e content)
 
 over(nil) := nil
 over(s: String) := s

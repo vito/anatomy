@@ -112,7 +112,7 @@ code(content) := data Element new(content, .tt)
 
 margin-note(content) := data Element new(content, .margin-note)
 
-aux(content) := content -- todo
+aux(content) := data Element new(content, .aux)
 
 format-inline(tokens, link-only = nil) =
   data Element new(
