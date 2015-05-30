@@ -71,6 +71,8 @@ Part set-tag(name, target = .self, display = nil) :=
 Part set-local-tag(name, target = nil, display = nil) :=
   @local-tags[name] = Tag new(self, name, target, display)
 
+Part toc? := .toc is-in style properties
+
 Part inspect := i"#<Part: '#{@tag name}'>"
 
 -- search in order:

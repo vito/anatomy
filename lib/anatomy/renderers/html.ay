@@ -110,7 +110,7 @@ filename(p) := p tag name + ".html"
 
 top(p) :=
   condition:
-    p parent and .toc is-in p parent style properties ->
+    p parent and p parent toc? ->
       p
 
     p parent ->
@@ -195,8 +195,6 @@ render(part, out = ".") := do:
       })
 
 render-part(part, out = ".", depth = 1) := do:
-  toc? = .toc is-in part style properties
-
   part assets each [a]:
     FileUtils cp(a, out)
 
@@ -207,7 +205,7 @@ render-part(part, out = ".", depth = 1) := do:
 
     over(part body)
 
-    if(toc?)
+    if(part toc?)
       then:
         <ol(.toc, #table-of-contents):
           part parts collect [sub]:
