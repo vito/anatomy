@@ -47,6 +47,9 @@ over(b: data Block) :=
     .header(depth) ->
       <"h#{depth}": over(b content)
 
+    .inset ->
+      <div(style = "margin: 0 2em 1em"): over(b content)
+
     nil ->
       <div: over(b content)
 
