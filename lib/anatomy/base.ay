@@ -28,6 +28,12 @@ table-of-contents :=
     [part]:
       part style properties << .toc)
 
+omit-children-from-table-of-contents :=
+  data ResolveElement new(
+    [part]:
+      part omit-children-from-table-of-contents? = true
+      "")
+
 section(title, *tag-names, content) :=
   decode(title(title, *tag-names), content)
 

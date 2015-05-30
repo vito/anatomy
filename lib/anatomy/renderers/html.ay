@@ -136,13 +136,14 @@ toc-leaf(part) :=
     <a(href = url(part)):
       over(part title)
 
-    unless(part parts empty?):
+    unless(part omit-children-from-table-of-contents? or part parts empty?):
       <ol:
         toc-leaf(s) for s in part parts
 
 
 render(part, out = ".") := do:
   tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
+
   File open(i"#{out}/public/tags_#{part tag name}.js", "w") [f]:
     f write(i"var SEARCH_TAGS = #{tags to-json};")
 

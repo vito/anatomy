@@ -60,7 +60,10 @@ data(
     @to-collect = []
 
     -- dependent assets
-    @assets = []))
+    @assets = []
+
+    -- omit children from table of contents
+    @omit-children-from-table-of-contents? = false))
 
 -- TODO: can't declare with Style new default (see above)
 Part style := @style ||= Style new
