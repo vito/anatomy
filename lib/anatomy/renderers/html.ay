@@ -160,10 +160,11 @@ toc-leaf(part) :=
 
 
 render(part, out = ".") := do:
-  tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
+  unless(part parent):
+    tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
 
-  File open(i"#{out}/public/tags_#{part tag name}.js", "w") [f]:
-    f write(i"var SEARCH_TAGS = #{tags to-json};")
+    File open(i"#{out}/public/tags.js", "w") [f]:
+      f write(i"var SEARCH_TAGS = #{tags to-json};")
 
   class =
     if(part style properties empty?)
@@ -181,7 +182,7 @@ render(part, out = ".") := do:
           <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
           <script(type = "text/javascript", src = "public/jquery.js") {}
           <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
-          <script(type = "text/javascript", src = i"public/tags_#{part tag name}.js") {}
+          <script(type = "text/javascript", src = "public/tags.js") {}
           <script(type = "text/javascript", src = "public/main.js") {}
 
           all-css-additions(part) collect [addition]:
