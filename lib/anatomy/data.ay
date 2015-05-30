@@ -1,5 +1,7 @@
 use("atomy")
 
+require("set")
+
 data(Block(@content, @style = nil)):
   Table(@rows)
   Itemization(@elements)
@@ -61,6 +63,9 @@ data(
 
     -- dependent assets
     @assets = []
+
+    -- css files to add
+    @css-additions = Set new
 
     -- omit children from table of contents
     @omit-children-from-table-of-contents? = false))

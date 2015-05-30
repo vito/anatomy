@@ -179,6 +179,10 @@ render(part, out = ".") := do:
           <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
           <script(type = "text/javascript", src = i"public/tags_#{part tag name}.js") {}
           <script(type = "text/javascript", src = "public/main.js") {}
+
+          all-css-additions(part) collect [addition]:
+            <link(type = "text/css", rel = "stylesheet", href = File basename(addition))
+
         <body(class = class):
           <div(#main):
             <div(#content):
@@ -211,6 +215,9 @@ render(part, out = ".") := do:
 
 render-part(part, out = ".", depth = 1) := do:
   part assets each [a]:
+    FileUtils cp(a, out)
+
+  part css-additions each [a]:
     FileUtils cp(a, out)
 
   <div(.section, id = i"section_#{part tag name}"):
@@ -269,3 +276,11 @@ search-tags(p) := do:
       ] for [t, d, u] in search-tags(sub)
 
   tags
+
+all-css-additions(p) := do:
+  assets = p css-additions to-a
+
+  p parts each [sub]:
+    assets += all-css-additions(sub)
+
+  assets
