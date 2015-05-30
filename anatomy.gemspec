@@ -6,11 +6,11 @@ Gem::Specification.new do |s|
   s.homepage = "http://atomy-lang.org"
   s.summary  = "Anatomy documentation system"
 
-  s.files         = Dir["{lib,bin,public}/**/*"]
+  s.files         = %w{LICENSE.md} + Dir["{lib,bin,public}/**/*"]
   s.executables   = ["anatomy"]
   s.require_paths = ["lib"]
 
-  s.license = "BSD"
+  s.license = "Apache-2.0"
 
   s.has_rdoc = false
   s.rubyforge_project = "anatomy"
