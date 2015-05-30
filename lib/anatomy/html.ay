@@ -27,6 +27,9 @@ macro(<(~name)(~*attrs)):
 macro(<~name):
   `(HTMLElement new(.~name))
 
+data(UnescapedString(@raw))
+
+UnescapedString to-s := @raw
 
 render(out, x: Array) =
   render(out, y) for y in x
