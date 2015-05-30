@@ -50,6 +50,12 @@ over(b: data Block) :=
     .inset ->
       <div(style = "margin: 0 2em 1em"): over(b content)
 
+    .centered ->
+      <div(style = "text-align: center"): over(b content)
+
+    .margin-note ->
+      <blockquote: over(b content)
+
     nil ->
       <div: over(b content)
 
@@ -100,18 +106,12 @@ over(e: data Element) :=
     .hyperlink(url) ->
       <a(href = url): over(e content)
 
-    .margin-note ->
-      <blockquote: over(e content)
-
     .image(file) ->
       <img(src = file, alt = over(e content))
 
     .svg(file) ->
       <object(data = file, type = "image/svg+xml", width = "100%", height = "100%"):
         <param(name = "src", value = file)
-
-    .centered ->
-      <div(style = "text-align: center"): over(e content)
 
     .aux ->
       unless(^(in-reference?)):

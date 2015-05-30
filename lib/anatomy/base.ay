@@ -68,7 +68,7 @@ reference(tag-name, content = nil) :=
         content or tag and tag display or tag-name))
 
 centered(content) :=
-  data Element new(content, .centered)
+  data Block new(content, .centered)
 
 image(asset-path, alt-text = "") :=
   data ResolveElement new(
@@ -110,7 +110,7 @@ subscript(content) := data Element new(content, .subscript)
 
 code(content) := data Element new(content, .tt)
 
-margin-note(content) := data Element new(content, .margin-note)
+margin-note(content) := data Block new(content, .margin-note)
 
 aux(content) := data Element new(content, .aux)
 
