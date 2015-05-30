@@ -84,6 +84,9 @@ over(e: data Element) :=
     .larger ->
       <span(style = "font-size: 120%"): over(e content)
 
+    .strike ->
+      <span(style = "text-decoration: line-through"): over(e content)
+
     .class(*classes) ->
       <span(class = classes join(" ")): over(e content)
 
