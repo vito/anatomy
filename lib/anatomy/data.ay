@@ -1,4 +1,4 @@
-use("atomy")
+use(require("atomy"))
 
 require("set")
 
@@ -33,8 +33,7 @@ data(
     @title = nil
 
     -- the part style
-    -- TODO: can't do @style = Style new
-    @style = nil
+    @style = Style new
 
     -- initial content before sub-parts
     @body = []
@@ -70,18 +69,15 @@ data(
     -- omit children from table of contents
     @omit-children-from-table-of-contents? = false))
 
--- TODO: can't declare with Style new default (see above)
-Part style := @style ||= Style new
-
-Part set-tag(name, target = .self, display = nil) :=
+def(Part set-tag(name, target = .self, display = nil)):
   @tags[name] = Tag new(self, name, target, display)
 
-Part set-local-tag(name, target = nil, display = nil) :=
+def(Part set-local-tag(name, target = nil, display = nil)):
   @local-tags[name] = Tag new(self, name, target, display)
 
-Part toc? := .toc is-in style properties
+def(Part toc?): style properties include?(.toc)
 
-Part inspect := i"#<Part: '#{@tag name}'>"
+def(Part inspect): i"#<Part: '#{@tag name}'>"
 
 -- search in order:
 -- 1. local hidden tags
@@ -94,14 +90,14 @@ Part inspect := i"#<Part: '#{@tag name}'>"
 --   2. tags
 --   3. siblings, searching in order
 --   4. parent ...
-Part find-tag(tag, excluding = nil) :=
+def(Part find-tag(tag, excluding = nil)):
   catch(.found):
     search-tag-excluding(tag, nil)
     nil
 
-Part search-tag-excluding(name, excluding) := do:
-  found = @local-tags[name] || @tags[name]
-  throw(.found, found) if found
+def(Part search-tag-excluding(name, excluding)): do:
+  when(found = (@local-tags[name] || @tags[name])):
+    throw(.found, found)
 
   when(name == @title):
     throw(.found, @tag)
@@ -110,12 +106,13 @@ Part search-tag-excluding(name, excluding) := do:
     unless(p == excluding):
       p search-tag(name)
 
-  @parent search-tag-excluding(name, self) if @parent
+  when(@parent):
+    @parent search-tag-excluding(name, self)
 
   nil
 
 -- called from find-tag; only search exposed tags and children
-Part search-tag(name) := do:
+def(Part search-tag(name)): do:
   when(name == @title):
     throw(.found, @tag)
 
@@ -126,25 +123,25 @@ Part search-tag(name) := do:
     p search-tag(name)
 
 
-Part top :=
+def(Part top):
   if(@parent)
     then: @parent top
     else: self
 
-content(String)? := true
-content(Element)? := true
-content(nil)? := true
-content(x: Array)? := x all? .content?
-content(_)? := false
+def(content?(String)): true
+def(content?(Element)): true
+def(content?(nil)): true
+def(content?(x & Array)): x all? &.content?
+def(content?(_)): false
 
-sanitize(x) :=
+def(sanitize(x)):
   contents-of(x) gsub(r" & ", " and ")
     gsub(r"\s+", "-")
     gsub(r"[^[:alnum:]_\-:.]", "")
     downcase
 
-contents-of(s: String) := s
-contents-of(e: Element) := contents-of(e content)
-contents-of(b: Block) := contents-of(b content)
-contents-of(a: Array) := (contents-of(x) for x in a) join
-contents-of(nil) := ""
+def(contents-of(s & String)): s
+def(contents-of(e & Element)): contents-of(e content)
+def(contents-of(b & Block)): contents-of(b content)
+def(contents-of(a & Array)): a collect [x] { contents-of(x) } join
+def(contents-of(nil)): ""

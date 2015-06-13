@@ -1,27 +1,27 @@
-use("atomy")
+use(require("atomy"))
 
 require("cgi")
 
 
 data(HTMLElement(@name, @attributes = #{}, @body = nil))
 
-attr-to-pair(`.~name) = `(.class -> ~(name text to-s))
-attr-to-pair(`#~name) = `(.id -> ~(name text to-s))
-attr-to-pair(`(~x = ~y)) = `(.~x -> ~y)
-
-macro(<(~name): ~*body):
-  `(HTMLElement new(.~name, #{}, ~body))
+fn(attr-to-pair(`.~name)): `(.class -> ~(Atomy Code StringLiteral new(name text to-s)))
+fn(attr-to-pair(`#~name)): `(.id -> ~(Atomy Code StringLiteral new(name text to-s)))
+fn(attr-to-pair(`(~x = ~y))): `(.~x -> ~y)
 
 macro(<(~name)(~*attrs): ~*body):
   `(HTMLElement new(
       .~name
-      #{ ~*(attr-to-pair(a) for a in attrs) }
-      ~body))
+      #{ ~*(attrs collect [a]: attr-to-pair(a)) }
+      [~*body]))
+
+macro(<(~name): ~*body):
+  `(HTMLElement new(.~name, #{}, [~*body]))
 
 macro(<(~name)(~*attrs)):
   `(HTMLElement new(
       .~name
-      #{ ~*(attr-to-pair(a) for a in attrs) }
+      #{ ~*(attrs collect [a]: attr-to-pair(a)) }
       nil))
 
 macro(<~name):
@@ -29,16 +29,16 @@ macro(<~name):
 
 data(UnescapedString(@raw))
 
-UnescapedString to-s := @raw
+def(UnescapedString to-s): @raw
 
-render(out, x: Array) =
-  render(out, y) for y in x
-render(out, x: String) =
+fn(render(out, x & Array)):
+  x collect [y]: render(out, y)
+fn(render(out, x & String)):
   out << CGI escapeHTML(x)
-render(out, x) =
+fn(render(out, x)):
   out << x to-s
 
-HTMLElement to-s := do:
+def(HTMLElement to-s): do:
   out = i"<#{@name}"
 
   @attributes each [k, v]:

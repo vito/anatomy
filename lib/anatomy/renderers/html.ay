@@ -1,69 +1,72 @@
-use("atomy")
-use("io")
-use("dynamic")
+use(require("atomy"))
+use(require("io"))
+use(require("dynamic"))
 
 require("json")
 require("fileutils")
 
-use("anatomy/html")
+use(require("anatomy/html"))
 data = require("anatomy/data")
 
 
-tag-url(t) =
+fn(tag-url(t)):
   t target match:
-    .anchor(x) ->
+    .anchor(x):
       url(t part, x)
 
-    .self ->
+    .self:
       url(t part)
 
-    .url(x) ->
+    .url(x):
       x
 
-over(i: data Itemization) :=
-  <dl:
-    [ <dt: over(name)
-      <dd: over(body)
-    ] for [name, body] in i elements
-over(l: data List) :=
+def(over(i & data Itemization)):
+  i elements collect [name, body]:
+    <dl:
+      [ <dt: over(name)
+        <dd: over(body)
+      ]
+def(over(l & data List)):
   <ul:
-    <li{ over(body) } for body in l elements
-over(l: data OrderedList) :=
+    l elements collect [body]:
+      <li: over(body)
+def(over(l & data OrderedList)):
   <ol:
-    <li{ over(body) } for body in l elements
-over(p: data Paragraph) :=
+    l elements collect [body]:
+      <li: over(body)
+def(over(p & data Paragraph)):
   <p: over(p content)
-over(b: data Block) :=
+def(over(b & data Block)):
   b style match:
-    .tt ->
+    .tt:
       <pre: over(b content)
 
-    .verbatim ->
+    .verbatim:
       <pre(.verbatim): over(b content)
 
-    .class(*classes) ->
+    .class(*classes):
       <div(class = classes join(" ")): over(b content)
 
-    .header(depth) ->
+    .header(depth):
       <"h#{depth}": over(b content)
 
-    .inset ->
+    .inset:
       <div(style = "margin: 0 2em 1em"): over(b content)
 
-    .centered ->
+    .centered:
       <div(style = "text-align: center"): over(b content)
 
-    .margin-note ->
+    .margin-note:
       <blockquote: over(b content)
 
-    nil ->
+    nil:
       <div: over(b content)
 
 in-reference? = dynamic(false)
 
-over(t: data Target) :=
+def(over(t & data Target)):
   <a(name = t name): nil
-over(p: data Reference) :=
+def(over(p & data Reference)):
   if(p tag)
     then:
       <a(href = tag-url(p tag)):
@@ -71,97 +74,97 @@ over(p: data Reference) :=
           over(p content)
     else:
       <a(.undefined): over(p content)
-over(r: data ResolveElement) := error(.did-not-resolve(r))
-over(e: data Element) :=
+def(over(r & data ResolveElement)):
+  error(.did-not-resolve(r))
+def(over(e & data Element)):
   e style match:
-    .italic ->
+    .italic:
       <em: over(e content)
 
-    .bold ->
+    .bold:
       <strong: over(e content)
 
-    .tt ->
+    .tt:
       <code: over(e content)
 
-    .superscript ->
+    .superscript:
       <sup: over(e content)
 
-    .subscript ->
+    .subscript:
       <sub: over(e content)
 
-    -- TODO
-    .smaller ->
+    .smaller:
       <span(style = "font-size: 80%"): over(e content)
 
-    -- TODO
-    .larger ->
+    .larger:
       <span(style = "font-size: 120%"): over(e content)
 
-    .strike ->
+    .strike:
       <span(style = "text-decoration: line-through"): over(e content)
 
-    .class(*classes) ->
+    .class(*classes):
       <span(class = classes join(" ")): over(e content)
 
-    .hyperlink(url) ->
+    .hyperlink(url):
       <a(href = url): over(e content)
 
-    .image(file) ->
+    .image(file):
       <img(src = file, alt = over(e content))
 
-    .svg(file) ->
+    .svg(file):
       <object(data = file, type = "image/svg+xml", width = "100%", height = "100%"):
         <param(name = "src", value = file)
 
-    .aux ->
+    .aux:
       unless(^(in-reference?)):
         over(e content)
 
-over(nil) := nil
-over(s: String) := s
-over(a: Array) :=
-  over(x) for x in a
+def(over(nil)): nil
+def(over(s & String)): s
+def(over(a & Array)):
+  a collect [x]: over(x)
 
 
-filename(p) := p tag name + ".html"
+def(filename(p)): p tag name + ".html"
 
 
-top(p) :=
+def(top(p)):
   condition:
-    p parent and p parent toc? ->
+    (p parent && p parent toc?):
       p
 
-    p parent ->
+    p parent:
       top(p parent)
 
-    otherwise ->
+    otherwise:
       p
 
-url(p, anchor = nil) :=
+def(url(p, anchor = nil)):
   condition:
-    top(p) != p ->
-      url(top(p)) + "#" + (anchor || p tag name)
+    (top(p) != p):
+      (url(top(p)) + "#") + (anchor || p tag name)
 
-    anchor ->
-      filename(p) + "#" + anchor
+    anchor:
+      (filename(p) + "#") + anchor
 
-    otherwise ->
+    otherwise:
       filename(p)
 
 
-toc-leaf(part) :=
+def(toc-leaf(part)):
   <li:
     <a(href = url(part)):
       over(part title)
 
-    unless(part omit-children-from-table-of-contents? or part parts empty?):
+    unless(part omit-children-from-table-of-contents? || part parts empty?):
       <ol:
-        toc-leaf(s) for s in part parts
+        part parts collect [p]: toc-leaf(p) --&.(Self toc-leaf(_))
 
 
-render(part, out = ".") := do:
+def(render(part, out = ".")):
   unless(part parent):
-    tags = [t, d to-s, u] for [t, d, u] in search-tags(part)
+    tags = search-tags(part) collect [t, d, u]:
+      [t, d to-s, u]
 
     File open(i"#{out}/public/tags.js", "w") [f]:
       f write(i"var SEARCH_TAGS = #{tags to-json};")
@@ -169,7 +172,7 @@ render(part, out = ".") := do:
   class =
     if(part style properties empty?)
       then: "normal"
-      else: part style properties collect .to-s join(" ")
+      else: part style properties collect &.to-s join(" ")
 
   File open(i"#{out}/#{filename(part)}", "w") [f]:
     f write("<!DOCTYPE html>")
@@ -208,7 +211,7 @@ render(part, out = ".") := do:
               [ <h4: "On this page:"
 
                 <ol(.toc):
-                  toc-leaf(s) for s in part parts
+                  part parts collect [s]: toc-leaf(s)
               ]
 
             when(part parent):
@@ -229,7 +232,7 @@ render(part, out = ".") := do:
             ")
       })
 
-render-part(part, out = ".", depth = 1) := do:
+def(render-part(part, out = ".", depth = 1)):
   part assets each [a]:
     FileUtils cp(a, out)
 
@@ -250,10 +253,11 @@ render-part(part, out = ".", depth = 1) := do:
             render(sub, out)
             toc-leaf(sub)
       else:
-        render-part(sub, out, depth + 1) for sub in part parts
+        part parts collect [sub]:
+          render-part(sub, out, depth + 1)
 
 
-search-tags(p) := do:
+def(search-tags(p)):
   tags = [
     [ data contents-of(p title)
       <span(.title):
@@ -268,7 +272,7 @@ search-tags(p) := do:
     url = tag-url(tag)
     tags <<
       [ tag name
-        tag display and over(tag display) or
+        (tag display && over(tag display)) ||
           <span(.tag):
             <code:
               <a(href = url):
@@ -277,9 +281,9 @@ search-tags(p) := do:
       ]
 
   p parts each [sub]:
-    tags +=
+    tags += search-tags(sub) collect [t, d, u]:
       [ t
-        if(d is-a(HTMLElement)? and d attributes[.class] == "with_parent")
+        if(d is-a?(HTMLElement) && (d attributes[.class] == "with_parent"))
           then: d
           else:
             <span(.with-parent):
@@ -289,11 +293,11 @@ search-tags(p) := do:
                 <a(href = url(p)):
                   over(p title)
         u
-      ] for [t, d, u] in search-tags(sub)
+      ]
 
   tags
 
-all-css-additions(p) := do:
+def(all-css-additions(p)):
   assets = p css-additions to-a
 
   p parts each [sub]:

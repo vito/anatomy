@@ -1,12 +1,12 @@
-use("atomy")
+use(require("atomy"))
 
 data = require("anatomy/data")
 
 
-pass((a: Array), info) :=
-  pass(x, info) for x in a
+def(pass(a & Array, info)):
+  a collect [x]: pass(x, info)
 
-pass((x: data TraverseBlock | data TraverseElement), info) := do:
+def(pass(x & (data TraverseBlock | data TraverseElement), info)):
   new = x action[info]
 
   when(new != x):
@@ -14,20 +14,21 @@ pass((x: data TraverseBlock | data TraverseElement), info) := do:
 
   new
 
-pass(x, _) := x
+def(pass(x, _)): x
 
 
-over(part) := do:
+def(over(part)):
   info = #{}
 
   changed? = true
   while(changed?):
     changed? =! false
 
-    { part body = pass(part body, info) } bind:
+    (part body = pass(part body, info)) bind:
       .changed:
         changed? =! true
 
-  over(p) for p in part parts
+  part parts each [p]:
+    over(p)
 
   part

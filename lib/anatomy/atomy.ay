@@ -1,4 +1,4 @@
-use("atomy")
+use(require("atomy"))
 io = require("io")
 pretty = require("pretty")
 
@@ -8,34 +8,36 @@ hl = require("hl")
 token = require("hl/token")
 atomy = hl load("atomy")
 
-use("anatomy/html")
+use(require("anatomy/html"))
 base = require("anatomy/base")
 data = require("anatomy/data")
 
+require("atomy/message_structure")
 
 
-format-inline(tokens, link-only = nil) =
-  data Element new(
-    -- constants, identifiers, and operators
-    if(link-only and t contents is-in link-only or
-        not link-only and t type tag is-in ["no", "n", "o"])
-      then:
-        data ResolveElement new(
-          [part]:
-            tag = part find-tag(t contents)
-            if(tag)
-              then: data Reference new(tag, t contents)
-              else: t contents)
-      else: t contents
-    .class(t type tag)) for t in tokens
+fn(format-inline(tokens, link-only = nil)):
+  tokens collect [t]:
+    data Element new(
+      -- constants, identifiers, and operators
+      if((link-only && link-only include?(t contents)) ||
+          (!link-only && ["no", "n", "o"] include?(t type tag)))
+        then:
+          data ResolveElement new(
+            [part]:
+              tag = part find-tag(t contents)
+              if(tag)
+                then: data Reference new(tag, t contents)
+                else: t contents)
+        else: t contents
+      .class(t type tag))
 
-format-block(tokens, link-only = nil) =
+fn(format-block(tokens, link-only = nil)):
   data Block new(
     base verbatim(format-inline(tokens, link-only))
     .class("highlight"))
 
 -- redirect ALL stdout/stderr for interaction
-with-all-output-to(out, err) &action = do:
+fn(with-all-output-to(out, err) &action):
   before-out = io OutputPort instance-variable-get(."@default")
   before-err = io ErrorPort instance-variable-get(."@default")
 
@@ -49,20 +51,20 @@ with-all-output-to(out, err) &action = do:
     io OutputPort instance-variable-set(."@default", before-out)
     io ErrorPort instance-variable-set(."@default", before-err)
 
-interactive-line(mod, input, line, context) = do:
+fn(interactive-line(mod, input, line, context)):
   out = StringIO new
   err = StringIO new
 
   output-tokens =
-    { with-restarts(use-tokens(ts) -> ts):
-        res =
-          with-all-output-to(out, err):
-            mod eval(input, line)
+    with-restarts(use-tokens(ts): ts) {
+      res =
+        with-all-output-to(out, err):
+          mod eval(input, line)
 
-        -- shorten the long-form inspections that show the ivars
-        atomy lex(pretty show(res) sub(r"#<([^\s]+)\s+@.*$", "#<\\1>"))
+      -- shorten the long-form inspections that show the ivars
+      atomy lex(pretty show(res) sub(r"#<([^\s]+)\s+@.*$", "#<\\1>"))
     } bind:
-      (e: Error) ->
+      (e & Error):
         restart(
           .use-tokens
           [ token Token new(
@@ -82,15 +84,15 @@ interactive-line(mod, input, line, context) = do:
   ]
 
 
-hl(x) := base code(format-inline(atomy new(x) run))
-atomy(x) := format-block(atomy new(x) run)
+def(hl(x)): base code(format-inline(atomy new(x) run))
+def(atomy(x)): format-block(atomy new(x) run)
 
-new-interaction-env(where = nil) =
+fn(new-interaction-env(where = nil)):
   Atomy Module new(where || "interaction") tap [mod]:
     mod use("atomy")
 
 environments = #{}
-interaction(x, where = nil) := do:
+def(interaction(x, where = nil)):
   mod =
     if(where)
       then:
@@ -105,14 +107,14 @@ interaction(x, where = nil) := do:
       .tt)
     .class("interaction"))
 
-example(x, where = nil) := do:
+def(example(x, where = nil)):
   data Block new(
     [ data Paragraph new([data Element new("Example:", .italic)])
       interaction(x, where)
     ]
     .class("example"))
 
-example-segment(x) :=
+def(example-segment(x)):
   data Block new(
     [ data Paragraph new([data Element new("Example:", .italic)])
       format-block(atomy new(x) run)
@@ -120,11 +122,11 @@ example-segment(x) :=
     .class("example"))
 
 
-def = require("define")
-define(what, *rules, returns, body) := do:
-  thumb = Atomy Parser parse-node(what)
+def(define(what, *rules, returns, body)):
+  thumb = Atomy Parser parse-string(what)
 
-  message-name = def message-name(thumb) to-s
+  structure = Atomy MessageStructure new(thumb nodes first)
+  message-name = structure name to-s
   tag-name =
     if(message-name =~ r"^[\p{Ll}_]")
       then: message-name tr("_", "-")
@@ -140,7 +142,8 @@ define(what, *rules, returns, body) := do:
                 " => "
                 .class("definition_result_arrow"))
               format-inline(atomy lex(returns))
-              ["\n  | ", format-inline(atomy lex(rule))] for rule in rules
+              rules collect [rule]:
+                ["\n  | ", format-inline(atomy lex(rule))]
             ]
             .tt)
         ]
@@ -149,7 +152,7 @@ define(what, *rules, returns, body) := do:
     ]
     .class("definition"))
 
-assign(name, to, body) := do:
+def(assign(name, to, body)):
   display = format-inline(atomy lex(name), [name])
   data Block new(
     [ base target-element(name)
@@ -168,30 +171,32 @@ assign(name, to, body) := do:
     ]
     .class("definition", "assign"))
 
-find-tags(tags, c: Atomy AST Constant) = tags << c name to-s
-find-tags(tags, `((~what)(~*_))) = find-tags(tags, what)
-find-tags(tags, `(~what: ~*childs)) = do:
+fn(find-tags(tags, c & Atomy Grammar AST Constant)): tags << c name to-s
+fn(find-tags(tags, `((~what)(~*_)))): find-tags(tags, what)
+fn(find-tags(tags, `(~what: ~*childs))):
   find-tags(tags, what)
-  find-tags(tags, c) for c in childs
 
-data(tree, body) := do:
-  tree-ast = Atomy Parser parse-node(tree)
+  childs each [c]:
+    find-tags(tags, c)
+
+def(data(tree, body)):
+  tree-ast = Atomy Parser parse-string(tree) nodes first
 
   tag-names = []
   find-tags(tag-names, tree-ast)
 
   display = format-inline(atomy lex(tree), tag-names)
   data Block new(
-    [ base target-element(name) for name in tag-names
+    [ tag-names collect [name]: base target-element(name)
       data Block new([base verbatim(display)], .class("thumb"))
       body
     ]
     .class("definition", "data"))
 
-macro(pattern, *tag-names, result, body) := do:
+def(macro(pattern, *tag-names, result, body)):
   display = format-inline(atomy lex(pattern), tag-names)
   data Block new(
-    [ base target-element(name) for name in tag-names
+    [ tag-names collect [name]: base target-element(name)
       data Block new([data Block new([display], .tt)], .class("thumb"))
       body
     ]

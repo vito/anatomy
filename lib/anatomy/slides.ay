@@ -1,20 +1,20 @@
-use("atomy")
+use(require("atomy"))
 
 data = require("anatomy/data")
 
 
-slides :=
+def(slides):
   data MetaBlock new(
     [part]:
       part style properties << .slides)
 
 
-title-slide(title) := do:
+def(title-slide(title)):
   data Block new(
     data Block new(title, .header(1))
     .class("slide title_only"))
 
-title-slide(title, subtitle) :=
+def(title-slide(title, subtitle)):
   data Block new(
     data Block new(
       [ data Block new(title, .header(1))
@@ -24,7 +24,7 @@ title-slide(title, subtitle) :=
     .class("slide title"))
 
 
-slide(title, body) :=
+def(slide(title, body)):
   data Block new(
     data Block new(
       [ data Block new(title, .header(2))
@@ -33,7 +33,7 @@ slide(title, body) :=
       .class("body"))
     .class("slide"))
 
-detail(title, body) :=
+def(detail(title, body)):
   data Block new(
     data Block new(
       [ data Block new(

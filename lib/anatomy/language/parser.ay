@@ -1,39 +1,39 @@
-use("atomy")
-use("grammar")
+use(require("atomy"))
+use(require("grammar"))
 
 parser(Parser):
   %%:
-    trim-leading(str, n) := do:
+    def(trim-leading(str, n)):
       unless(n > 0):
         return(str)
 
-      str gsub(r"\n {0,#{n}}", "\n")!
+      str gsub!(r"\n {0,#{n}}", "\n")
 
-    word(l, x) := do:
-      w = Atomy AST Word new(#{ .text -> x })
+    def(word(l, x)):
+      w = Atomy Grammar AST Word new(x)
       w line = l
       w
 
-  %atomy := Atomy Parser
+  %atomy = Atomy Grammar
 
-  line := { current-line }
-  column := { current-column }
+  rule(line): { current-line }
+  rule(column): { current-column }
 
-  comment := "{-" in-multi
+  rule(comment): "{-" in-multi
 
-  in-multi := [
+  rule(in-multi): [
     /"[^\-\{\}]*"/ "-}"
     /"[^\-\{\}]*"/ "{-" in-multi /"[^\-\{\}]*"/ "-}"
     /"[^\-\{\}]*"/ /"[-{}]"/ in-multi
   ]
 
-  content(s) := comment? c=(chunk(s) | escaped) comment? { c }
+  rule(content(s)): comment? c=(chunk(s) | escaped) comment? { c }
 
-  insignificant := (<(/"[^\\\{\}]+"/)> | "\\" <(/"[\\\{\}]"/)>) {
+  rule(insignificant): (<(/"[^\\\{\}]+"/)> | "\\" <(/"[\\\{\}]"/)>) {
     text
   }
 
-  chunk(s) := [
+  rule(chunk(s)): [
     l=(line) chunk=(insignificant+) c=((&"}" | comment)?) {
       text = chunk join
 
@@ -42,13 +42,13 @@ parser(Parser):
 
       trim-leading(text, s)
 
-      text
+      Atomy Grammar AST StringLiteral new(text)
     }
 
     nested
   ]
 
-  escaped := [
+  rule(escaped): [
     l=(line) "\\" n=(%atomy(identifier)) as=(argument+) {
       `((~word(l, n))(~*as))
     }
@@ -58,27 +58,27 @@ parser(Parser):
     l=(line) "\\" "(" e=(%atomy(expression)) ")" { e }
   ]
 
-  leading := [
+  rule(leading): [
     &(/"\n+"/ b=(column) /"\s+"/ a=(column)) { a - b }
     { 0 }
   ]
 
-  nested :=
+  rule(nested):
     l=(line) "{" s=(leading) cs=(content(s)*) "}" {
-      when(cs[0] is-a(String)?):
-        cs[0] sub(r"^\n", "")!
+      when(cs[0] is-a?(Atomy Grammar AST StringLiteral)):
+        cs[0] value sub!(r"^\n", "")
 
       cs match:
-        []: ""
+        []: Atomy Grammar AST StringLiteral new("")
         [x]: x
-        _: cs
+        _: `[~*cs]
     }
 
-  atomy := "[" e=(%atomy(expression)) "]" { e }
+  rule(atomy): "[" e=(%atomy(expression)) "]" { e }
 
-  argument := nested | atomy
+  rule(argument): nested | atomy
 
-  root :=
+  rule(root):
     l=(line) cs=(content(0)*) !_ {
       setup = Array[]
       definitions = Array[]
@@ -87,42 +87,44 @@ parser(Parser):
         c match:
           (`use(~_) | `require(~_)):
             setup << c
-            nil
+            'nil
 
-          `(~x := ~y):
-            definitions << `(~x := ~y)
-            nil
+          `(def(~x): ~*y):
+            definitions << c
+            'nil
 
-          `define(~x, ~y):
+          `let(~x, ~y):
             definitions << `(~x = ~y)
+            'nil
 
-          Array: c map &filter
+          `[~*cs]:
+            `[~*(cs map &filter)]
 
-          _ -> c
+          _:
+            c
 
       body = cs map &filter
 
-      `(do:
-          use("atomy")
+      Atomy Grammar AST Sequence new([
+        'use(require("atomy"))
+        'use(require("anatomy/base"))
 
-          use("anatomy/base")
-
-          ~*setup
-
-          ~*definitions
-
-          doc := decode(~*body))
+        `(do:
+            ~*setup
+            ~*definitions
+            def(doc): decode(~*body))
+      ])
     }
 
 
 Parser singleton:
-  parse-string(str) := do:
+  def(parse-string(str)):
     p = new(str)
     unless(p parse):
       p raise-error
 
     p result
 
-  parse-file(path) := do:
+  def(parse-file(path)):
     File open(path, "r") [f]:
       parse-string(f read)

@@ -1,4 +1,6 @@
-use("atomy")
+use(require("atomy"))
+
+pretty = require("pretty")
 
 require("fileutils")
 
@@ -7,22 +9,25 @@ collect = require("anatomy/stages/collect")
 resolve = require("anatomy/stages/resolve")
 html = require("anatomy/renderers/html")
 
-process(input, renderer, output = ".") := do:
+def(process(input, renderer, output = ".")):
   input = File expand-path(input)
   output = File expand-path(output)
 
-  mod = Atomy load(input)
+  mod = require(input)
 
   part = mod doc
   traversed = traverse over(part)
   collected = collect over(traversed)
   resolved = resolve over(collected)
 
-  Dir mkdir(output) unless Dir exists(output)?
-  Dir mkdir(output + "/public") unless Dir exists(output)?
+  unless(Dir exists?(output)):
+    Dir mkdir(output)
+
+  unless(Dir exists?(output + "/public")):
+    Dir mkdir(output + "/public")
 
   FileUtils cp-r(
-    File expand-path("../../../public", _FILE) + "/."
+    File expand-path("../../../public", __FILE__) + "/."
     output + "/public")
 
   renderer render(resolved, output)

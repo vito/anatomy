@@ -1,0 +1,45 @@
+use(require("atomy"))
+
+require("optparse")
+
+$LOAD_PATH unshift(File expand-path("../../lib", __FILE__))
+
+processor = require("anatomy/processor")
+
+ARGV shift
+
+options = #{
+  .input -> ARGV[0]
+  .output -> "."
+  .renderer -> "html"
+}
+
+op = OptionParser new [o]:
+  o banner = "usage: anatomy [file] [options]"
+
+  o on("-i", "--input FILE", "anatomy document") [v]:
+    options[.input] = v
+
+  o on("-o", "--output DIRECTORY",
+       "where to place output documents and files") [v]:
+    options[.output] = v
+
+  o on("-r", "--renderer NAME",
+       "which renderer to use (e.g. html)") [v]:
+    options[.renderer] = v
+
+op parse!
+
+input = options[.input]
+output = options[.output]
+renderer = options[.renderer]
+
+unless(input):
+  puts(op help)
+  exit(1)
+
+-- a / in the renderer name implies it's external
+unless(renderer include?("/")):
+  renderer = i"anatomy/renderers/#{renderer}"
+
+processor process(input, require(renderer), output)

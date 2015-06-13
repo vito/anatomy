@@ -1,55 +1,55 @@
-use("atomy")
+use(require("atomy"))
 
 data = require("anatomy/data")
 
-pass((a: Array), part) :=
-  pass(x, part) for x in a
+def(pass(a & Array, part)):
+  a collect [x]: pass(x, part)
 
-pass((c: data ResolveElement), part) :=
+def(pass(c & data ResolveElement, part)):
   pass(c action[part], part)
 
-pass((x: data Reference | data Target), part) :=
+def(pass(x & (data Reference | data Target), part)):
   x
 
-pass((e: data Element), part) := do:
+def(pass(e & data Element, part)):
   unless(e class == data Element):
     warning(.did-not-traverse(e class))
 
   e dup tap [x]:
     x content = pass(e content, part)
 
-pass((i: data Itemization), part) :=
+def(pass(i & data Itemization, part)):
   i dup tap [x]:
-    x elements =
+    x elements = i elements collect [name, body]:
       [ pass(name, part)
         pass(body, part)
-      ] for [name, body] in i elements
+      ]
 
-pass((l: data List), part) :=
+def(pass(l & data List, part)):
   l dup tap [x]:
-    x elements =
-      pass(body, part) for body in l elements
+    x elements = l elements collect [body]:
+      pass(body, part)
 
-pass((p: data Paragraph), part) := do:
+def(pass(p & data Paragraph, part)):
   p dup tap [x]:
     x content = pass(p content, part)
 
-pass((c: data ResolveBlock), part) :=
+def(pass(c & data ResolveBlock, part)):
   pass(c action[part], part)
 
-pass((b: data Block), part) := do:
+def(pass(b & data Block, part)):
   unless(b class == data Block):
     warning(.did-not-traverse(b class))
 
   b dup tap [x]:
     x content = pass(b content, part)
 
-pass((s: String), _) := s
+def(pass(s & String, _)): s
 
-pass(nil, _) := nil
+def(pass(nil, _)): nil
 
 
-over(part) := do:
+def(over(part)):
   part body = pass(part body, part)
-  over(sub) for sub in part parts
+  part parts each [sub]: over(sub)
   part

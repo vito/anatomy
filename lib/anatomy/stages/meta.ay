@@ -1,22 +1,21 @@
 -- build paragraphs, set title info, add sub-parts
 
-use("atomy")
+use(require("atomy"))
 
 data = require("anatomy/data")
 
 
-close-paragraph(body) =
-  when(body last is-a(data Paragraph)?):
+fn(close-paragraph(body)):
+  when(body last is-a?(data Paragraph)):
     body last closed? = true
 
-ensure-paragraph(body) =
-  unless(body last is-a(data Paragraph)? and
-          not body last closed?):
+fn(ensure-paragraph(body)):
+  unless(body last is-a?(data Paragraph) && !(body last closed?)):
     body << data Paragraph new([])
 
-add-content-to((str: String), body) =
+fn(add-content-to(str & String, body)):
   str split("\n\n", 2) match:
-    [? chomp empty?, rest]:
+    [{ chomp empty? }, rest]:
       close-paragraph(body)
       add-content-to(rest, body)
 
@@ -33,28 +32,28 @@ add-content-to((str: String), body) =
     []:
       close-paragraph(body)
 
-add-content-to(x, body) = do:
+fn(add-content-to(x, body)):
   ensure-paragraph(body)
   body last content << x
 
 
-pass((m: data MetaBlock), part, body = part body) := do:
+def(pass(m & data MetaBlock, part, body = part body)):
   m action[part]
   nil
 
-pass((a: Array), part, body = part body) := do:
+def(pass(a & Array, part, body = part body)):
   a each [x]:
     pass(x, part, body)
 
   nil
 
-pass((p: data Part), part, body = part body) := do:
+def(pass(p & data Part, part, body = part body)):
   part parts << p
   p parent = part
   part body freeze
   nil
 
-pass((i: data Itemization), part, body = part body) :=
+def(pass(i & data Itemization, part, body = part body)):
   unless(body frozen?):
     body <<
       i dup tap [x]:
@@ -63,7 +62,7 @@ pass((i: data Itemization), part, body = part body) :=
           pass(b, part, body)
           [n, body]
 
-pass((l: data List), part, body = part body) :=
+def(pass(l & data List, part, body = part body)):
   unless(body frozen?):
     body <<
       l dup tap [x]:
@@ -72,29 +71,30 @@ pass((l: data List), part, body = part body) :=
           pass(b, part, body)
           body
 
-pass((b: data Block), part, body = part body) :=
+def(pass(b & data Block, part, body = part body)):
   unless(body frozen?):
     body <<
       b style match:
-        .tt -> b
+        .tt: b
 
-        .verbatim -> b
+        .verbatim: b
 
-        .header(_) -> b
+        .header(_): b
 
-        _ ->
+        _:
           b dup tap [x]:
             x content = []
             pass(b content, part, x content)
 
-pass(x, part, body = part body) :=
+def(pass(x, part, body = part body)):
   condition:
-    body frozen? -> nil
+    body frozen?: nil
 
-    data content(x)? ->
+    data content?(x):
       add-content-to(x, body)
 
-    otherwise ->
+    otherwise:
       body << x
 
-over(x, part) := pass(x, part, part body)
+def(over(x, part)):
+  pass(x, part, part body)

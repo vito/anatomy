@@ -1,35 +1,35 @@
 -- scan the Part for any tags it defines, attaching them to a copied Part
 -- go into sub-parts and do the same
 
-use("atomy")
+use(require("atomy"))
 
 data = require("anatomy/data")
 
 
-pass((a: Array), part) :=
-  pass(x, part) for x in a
+def(pass(a & Array, part)):
+  a collect [x]: pass(x, part)
 
-pass((c: data CollectElement), part) :=
+def(pass(c & data CollectElement, part)):
   c action[part]
 
-pass((p: data Paragraph), part) :=
+def(pass(p & data Paragraph, part)):
   p dup tap [x]:
     x content = pass(p content, part)
 
-pass(nil, _) := nil
+def(pass(nil, _)): nil
 
-pass((s: String), _) := s
+def(pass(s & String, _)): s
 
-pass((e: data Element), part) :=
+def(pass(e & data Element, part)):
   e dup tap [x]:
     x content = pass(e content, part)
 
-pass((b: data Block), part) :=
+def(pass(b & data Block, part)):
   b dup tap [x]:
     x content = pass(b content, part)
 
 
-over(part) := do:
+def(over(part)):
   part body = pass(part body, part)
-  over(sub) for sub in part parts
+  part parts each [sub]: over(sub)
   part

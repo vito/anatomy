@@ -1,48 +1,5 @@
-#!/usr/bin/env rbx
+#!/usr/bin/env ruby
 # vim: ft=ruby
 
-require("rubygems")
-require("optparse")
-
-require("atomy/boot")
-
-$LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
-
-processor = require("anatomy/processor")
-
-options = {}
-op = OptionParser.new do |o|
-  o.banner = "usage: anatomy [file] [options]"
-
-  o.on("-i", "--input FILE", "anatomy document") do |v|
-    options[:input] = v
-  end
-
-  o.on("-o", "--output DIRECTORY",
-       "where to place output documents and files") do |v|
-    options[:output] = v
-  end
-
-  o.on("-r", "--renderer NAME",
-       "which renderer to use (e.g. html)") do |v|
-    options[:renderer] = v
-  end
-end
-
-op.parse!
-
-input = options[:input] || ARGV[0]
-output = options[:output] || "."
-renderer = options[:renderer] || "html"
-
-unless input
-  puts(op help)
-  exit(1)
-end
-
-# a / in the renderer name implies it's external
-unless renderer.include?("/")
-  renderer = "anatomy/renderers/#{renderer}"
-end
-
-processor.process(input, require(renderer), output)
+require "atomy/rubygems"
+require "anatomy/cmd"

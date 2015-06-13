@@ -1,4 +1,4 @@
-use("atomy")
+use(require("atomy"))
 
 -- traverse: include all sections
 -- collect: define all tags
@@ -6,11 +6,11 @@ use("atomy")
 -- render
 Styles = module {}
 
-strip-tags(x) :=
+def(strip-tags(x)):
   x gsub(r"<script.*?<\/script>", "")
     gsub(r"<.*?>", "")
 
-sanitize(x) :=
+def(sanitize(x)):
   strip-tags(x)
     gsub(r"\s+", "-")
     gsub(r"[^[:alnum:]_\-:.]", "")
