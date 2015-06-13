@@ -38,8 +38,16 @@ fn(render(out, x & String)):
 fn(render(out, x)):
   out << x to-s
 
-def(HTMLElement to-s): do:
-  out = i"<#{@name}"
+stripped? = dynamic(false)
+
+def(HTMLElement to-s):
+  out = ""
+
+  when(^stripped?):
+    render(out, @body)
+    return(out)
+
+  out << i"<#{@name}"
 
   @attributes each [k, v]:
     out << i" #{k}=\"#{v}\""
@@ -55,3 +63,11 @@ def(HTMLElement to-s): do:
   out << i"</#{@name}>"
 
   out
+
+data(StrippedTags(@body))
+
+def(StrippedTags to-s):
+  with(stripped? = true):
+    out = ""
+    render(out, @body)
+    out

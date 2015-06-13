@@ -180,7 +180,7 @@ def(render(part, out = ".")):
       <html {
         <head:
           <meta("http-equiv" = "Content-Type", content = "text/html; charset=UTF-8")
-          <title: over(part title)
+          <title: StrippedTags new(over(part title))
           <link(type = "text/css", rel = "stylesheet", href = "public/anatomy.css")
           <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
           <script(type = "text/javascript", src = "public/jquery.js") {}
