@@ -14,7 +14,6 @@ data = require("anatomy/data")
 
 require("atomy/message_structure")
 
-
 fn(format-inline(tokens, link-only = nil)):
   tokens collect [t]:
     data Element new(

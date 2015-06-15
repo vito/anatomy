@@ -1,5 +1,7 @@
 use(require("atomy"))
 
+require("atomy/codeloader")
+
 pretty = require("pretty")
 
 require("fileutils")
@@ -13,7 +15,7 @@ def(process(input, renderer, output = ".")):
   input = File expand-path(input)
   output = File expand-path(output)
 
-  mod = require(input)
+  mod = Atomy CodeLoader require(input)
 
   part = mod doc
   traversed = traverse over(part)

@@ -1,0 +1,80 @@
+use(require("atomy"))
+
+require("webrick")
+
+-- shim in svg content-type support
+WEBrick HTTPUtils DefaultMimeTypes["svg"] = "image/svg+xml"
+
+const-set(.Server, class:
+  def(initialize(@source, @destination, @processor, @renderer)):
+    @mutex = Mutex new)
+
+def(Server serve(port)):
+  server = WEBrick HTTPServer new(#{.Port -> port})
+
+  server mount-proc("/") [req, res]:
+    relative-path = req path sub(r"^\/", "")
+    local-abs-path = File absolute-path(relative-path, @destination)
+
+    if(relative-path == "favicon.ico")
+      then: respond-to-favicon(res)
+      else: respond-to-path(res, relative-path, local-abs-path)
+
+  trap("INT"): server shutdown
+
+  server start
+
+def(Server respond-to-favicon(res)):
+  res status = 404
+
+def(Server respond-to-path(res, relative-path, local-abs-path)):
+  do {
+    rebuild-if-needed 
+
+    if(File directory?(local-abs-path))
+      then: respond-to-file(res, File join(local-abs-path, "index.html"))
+      else: respond-to-file(res, local-abs-path)
+  } rescue:
+    e:
+      message = i"#{e to-s}\n#{Rubinius Backtrace backtrace(e locations) show}"
+      puts(message)
+      respond-with-error(res, message)
+
+def(Server respond-with-error(res, message)):
+  res content-type = "text/html"
+  res body = i"<pre>#{message}</pre>"
+
+def(Server respond-to-file(res, local-abs-path)):
+  res body = File read(local-abs-path)
+  res content-type = guess-content-type(local-abs-path)
+
+def(Server guess-content-type(path)):
+  extension = File extname(path) sub(r"^\.", "")
+  WEBrick HTTPUtils DefaultMimeTypes fetch(extension):
+    "application/octet-stream"
+
+def(Server rebuild-if-needed):
+  -- Webrick is multi-threaded; guard against concurrent builds
+  @mutex synchronize:
+    when(@last-disk-state == disk-state):
+      return
+
+    puts(i"---------------- rebuilding #{@source}")
+
+    -- clear out already-loaded document modules
+    $LOADED_FEATURES reject! &.end-with?(".any")
+
+    @processor process(@source, @renderer, @destination)
+
+    -- Save disk state after rebuilding, to ignore the built artifacts
+    -- themselves
+    @last-disk-state = disk-state
+
+-- TODO: if this is defined in the class: we get an unknown constant 'Particle'
+def(Server disk-state):
+  -- collect disk state of files surrounding input file
+  Dir glob(File expand-path("../**/*", @source)) collect &.(
+    File absolute-path(_)
+  ) collect [path] {
+    [path, File stat(path) mtime to-s]
+  } sort

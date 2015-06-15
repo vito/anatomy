@@ -1,5 +1,7 @@
 use(require("atomy"))
 
+require("atomy/codeloader")
+
 data = require("anatomy/data")
 meta = require("anatomy/stages/meta")
 traverse = require("anatomy/stages/traverse")
@@ -32,11 +34,11 @@ def(section(title, *tag-names, content)):
   decode(title(title, *tag-names), content)
 
 def(include-section(path)):
-  require(path) doc
+  Atomy CodeLoader require(path) doc
 
 def(include-sections(path)):
   Dir glob(path) collect [s]:
-    require(s) doc
+    Atomy CodeLoader require(s) doc
 
 def(target-element(tag-name, display = nil)):
   data CollectElement new(

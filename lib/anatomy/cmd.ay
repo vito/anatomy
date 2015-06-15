@@ -12,10 +12,14 @@ options = #{
   .input -> ARGV[0]
   .output -> "."
   .renderer -> "html"
+  .serve -> nil
 }
 
 op = OptionParser new [o]:
   o banner = "usage: anatomy [file] [options]"
+
+  o on("-s", "--serve PORT", "serve the rendered documents on the given port") [v]:
+    options[.serve] = v to-i
 
   o on("-i", "--input FILE", "anatomy document") [v]:
     options[.input] = v
@@ -42,4 +46,15 @@ unless(input):
 unless(renderer include?("/")):
   renderer = i"anatomy/renderers/#{renderer}"
 
-processor process(input, require(renderer), output)
+if(options[.serve])
+  then:
+    server = require("anatomy/server") Server new(
+      options[.input]
+      options[.output]
+      processor
+      require(renderer)
+    )
+
+    server serve(options[.serve])
+  else:
+    processor process(input, require(renderer), output)
