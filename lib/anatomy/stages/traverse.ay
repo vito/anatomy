@@ -22,11 +22,11 @@ def(over(part)):
 
   changed? = true
   while(changed?):
-    changed? =! false
+    &changed? = false
 
     (part body = pass(part body, info)) bind:
       .changed:
-        changed? =! true
+        &changed? = true
 
   part parts each [p]:
     over(p)
