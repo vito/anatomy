@@ -5,9 +5,9 @@ require("webrick")
 -- shim in svg content-type support
 WEBrick HTTPUtils DefaultMimeTypes["svg"] = "image/svg+xml"
 
-const-set(.Server, class:
+class(Server):
   def(initialize(@source, @destination, @processor, @renderer)):
-    @mutex = Mutex new)
+    @mutex = Mutex new
 
 def(Server serve(port)):
   server = WEBrick HTTPServer new(#{.Port -> port})
