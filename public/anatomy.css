@@ -216,8 +216,18 @@ div.search:hover {
   background: #fff0f0;
 }
 
-.verbatim, .interaction, .highlight {
+.verbatim, .interaction {
   margin: 0 1em 1em;
+}
+
+.highlight {
+  background: #fbfbfb;
+  padding: 1em;
+  margin: 0 1em;
+}
+
+.highlight .verbatim {
+  margin: 0;
 }
 
 .interaction pre {
