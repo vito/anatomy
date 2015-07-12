@@ -133,8 +133,11 @@ fn(format-block(tokens, link-only = nil)):
     verbatim(format-inline(tokens, link-only))
     .class("highlight"))
 
+fn(collect-content(s & String)): s
+fn(collect-content(ss & Array)): ss collect [s]: collect-content(s); join
+
 def(codeblock(language, content)):
-  format-block(hl load(language) new(content) run) rescue:
+  format-block(hl load(language) new(collect-content(content)) run) rescue:
     LoadError:
       warning(.unknown-language(language))
       verbatim(content)
