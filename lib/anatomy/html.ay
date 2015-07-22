@@ -50,7 +50,17 @@ def(HTMLElement to-s):
   out << i"<#{@name}"
 
   @attributes each [k, v]:
-    out << i" #{k}=\"#{v}\""
+    v match:
+      -- boolean attribute, enabled
+      true:
+        out << i" #{k}"
+
+      -- boolean attribute, disabled
+      false: ;
+
+      -- string attribute
+      _:
+        out << i" #{k}=\"#{v}\""
 
   unless(@body):
     out << " />"

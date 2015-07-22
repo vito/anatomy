@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name     = "anatomy"
-  s.version  = "0.1.1"
+  s.version  = "0.1.2"
   s.authors  = ["Alex Suraci"]
   s.email    = ["suraci.alex@gmail.com"]
   s.homepage = "https://vito.github.io/atomy"
@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "anatomy"
 
   s.add_runtime_dependency "atomy", "~> 0.6.3"
-  s.add_runtime_dependency "broomhlda", "~> 0.1.0"
+  s.add_runtime_dependency "broomhlda", "~> 0.2.0"
 
   s.add_development_dependency "rake", "~> 10.4"
 end
