@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name     = "anatomy"
-  s.version  = "0.1.2"
+  s.version  = "0.1.3"
   s.authors  = ["Alex Suraci"]
   s.email    = ["suraci.alex@gmail.com"]
   s.homepage = "https://vito.github.io/atomy"
