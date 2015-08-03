@@ -9,7 +9,6 @@ var X_OFFSET = 50,
 
 $(function(){
     bindSearch();
-    sidebarTree();
 
     if (!$(".slides").length)
         return;
@@ -142,52 +141,6 @@ function bindSearch() {
         else
             $(".search_results").show();
     });
-}
-
-function sidebarTree() {
-    $("#sidebar .toc li").each(function(){
-        var sub = $(this).find("ol:first");
-        if (!sub.length) return;
-
-        var toggle = document.createElement("span");
-        $(toggle).addClass("toggle");
-
-        $(this).find("ol").hide();
-
-        function face(hover) {
-            if (hover) {
-                if (sub.css("display") == "none")
-                    $(toggle).html("&#9660");
-                else
-                    $(toggle).html("&#9650")
-            } else {
-                if (sub.css("display") == "none")
-                    $(toggle).html("&#9661");
-                else
-                    $(toggle).html("&#9651")
-            }
-        }
-
-        $(toggle).html("&#9661;");
-        $(toggle).click(function(){
-            $(this).next("ol").slideToggle("fast", function(){
-                face(false);
-            });
-        });
-
-        $(toggle).mouseenter(function(){
-            face(true);
-        });
-
-        $(toggle).mouseleave(function(){
-            face(false);
-        });
-
-        $(toggle).insertAfter($(this).find("a:first"));
-    });
-
-    if ($("#sidebar .toc:nth(1) > li:contains(ol)").length == 1)
-        $("#sidebar .toc:nth(1) .toggle:first").click();
 }
 
 function moveX(diff) {

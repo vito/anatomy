@@ -15,12 +15,13 @@ html {
 }
 
 body {
-  font-family: Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua', Georgia, serif;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 code {
   font-size: 14px;
-  background: #e0e0e0;
+  background: #fbfbfb;
+	color: #202020;
   padding: 2px 5px;
   border-radius: 5px;
 }
@@ -61,7 +62,7 @@ h2 {
   font-size: 20px;
   font-weight: 500;
   line-height: 20px;
-  border-bottom: 1px dotted #bbb;
+  border-bottom: 1px dotted #d0d0d0;
   padding-bottom: .25em;
   margin-bottom: .75em;
 }
@@ -118,17 +119,17 @@ dd {
 
 #main {
   width: 700px;
-  margin-left: 220px;
+  margin-left: 250px;
 }
 
 #content {
-  padding: 32px 0;
+  padding: 32px;
 }
 
 #sidebar {
-  color: #777;
-  padding: 32px;
-  width: 136px;
+	background: #202020;
+  color: #e0e0e0;
+  width: 250px;
   height: 100%;
   overflow: auto;
   position: fixed;
@@ -136,6 +137,57 @@ dd {
   top: 0;
   bottom: 0;
 }
+#sidebar h2 {
+	padding: 0;
+	border: none;
+}
+#sidebar h2 a {
+	padding: .5em;
+	color: #f5f5f5;
+        background: #151515;
+	display: block;
+        font-weight: bold;
+}
+#sidebar h2 a:hover {
+	text-decoration: none;
+	background: #303030;
+}
+#sidebar .toc {
+  font-size: 1em;
+	margin: 0;
+	padding: 0;
+}
+#sidebar .toc ol {
+	margin: 0;
+	padding: 0 0 0 1em;
+}
+#sidebar .toc li {
+	list-style-type: none;
+}
+#sidebar .toc a {
+	padding: .5em 1em;
+	display: block;
+	color: #e0e0e0;
+}
+#sidebar .toc a:hover {
+  color: #f5f5f5;
+	background: #505050;
+	text-decoration: none;
+}
+#sidebar .toc code {
+  background: #151515;
+  color: #f5f5f5;
+}
+#sidebar .toc li ol {
+	display: none;
+}
+#sidebar .toc li.active ol {
+	display: block;
+}
+#sidebar .toc li.current > a {
+	background: #303030;
+}
+
 .search {
   width: 200px;
   position: fixed;
@@ -149,11 +201,11 @@ div.search:hover {
 .search #search {
   width: 186px;
   padding: 5px;
-  border: 2px solid #eee;
+  border: 2px solid #e0e0e0;
 }
 .search .search_results {
   margin: 0;
-  border: 2px solid #eee;
+  border: 2px solid #e0e0e0;
   border-top: 0;
   display: none;
   background: #fff;
@@ -165,36 +217,20 @@ div.search:hover {
 .search .search_results .parent {
   font-size: 12px;
   font-style: italic;
-  color: #555;
+  color: #505050;
 }
 .search .search_results .parent a {
-  color: #222;
+  color: #202020;
 }
 .search .search_results .tag {
   font-style: italic;
-  color: #555;
-}
-#sidebar h4 {
-  font-style: italic;
-}
-#sidebar .toc {
-  margin-left: 1em;
-  font-size: 0.9em;
-}
-#sidebar .toc .toggle {
-  margin-left: .5em;
-  font-size: 10px;
-  cursor: pointer;
-  color: #777;
-}
-#sidebar .toc ol {
-  margin: 0 0 0 1em;
+  color: #505050;
 }
 
 .section .section {
   margin: 1em 0;
   padding: 1em 0;
-  border-bottom: .1em dotted #000;
+  border-bottom: .1em dotted #151515;
 }
 .section .section .section {
   margin: 0;
@@ -204,16 +240,12 @@ div.search:hover {
 .definition {
   margin: 2em 0;
   padding: 2em 0 0;
-  border-top: .1em dotted #ddd;
+  border-top: .1em dotted #d0d0d0;
 }
 .definition .thumb pre {
   background: #e0e0e0;
   padding: .6em .75em;
   margin-bottom: 1em;
-}
-.definition.macro .thumb pre {
-  /* same as unquote background */
-  background: #fff0f0;
 }
 
 .verbatim, .interaction {
@@ -240,11 +272,11 @@ code a:link,
 code a:visited {
   color: inherit;
   text-decoration: none;
-  border-bottom: .1em solid #ddd;
+  border-bottom: .1em solid #d0d0d0;
 }
 pre a:hover,
 code a:hover {
-  border-bottom-color: #333;
+  border-bottom-color: #303030;
 }
 
 blockquote {
@@ -264,7 +296,7 @@ table th, table td {
   margin-top: -1.5em;
   margin-right: -15em;
   padding: .5em;
-  color: #777;
+  color: #b0b0b0;
 }
 
 .centered {
@@ -286,7 +318,7 @@ table th, table td {
 }
 .interaction .caret {
   font-weight: bold;
-  color: #999;
+  color: #d0d0d0;
 }
 
 .error_output {

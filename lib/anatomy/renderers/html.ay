@@ -63,6 +63,7 @@ def(over(b & data Block)):
       <div: over(b content)
 
 in-reference? = dynamic(false)
+in-sidebar? = dynamic(false)
 
 def(over(t & data Target)):
   <a(name = t name): nil
@@ -122,7 +123,7 @@ def(over(e & data Element)):
       <script(async = true, defer = true, src = url) {}
 
     .aux:
-      unless(^(in-reference?)):
+      unless(^(in-reference?) || ^(in-sidebar?)):
         over(e content)
 
 def(over(nil)): nil
@@ -157,14 +158,22 @@ def(url(p, anchor = nil)):
       filename(p)
 
 
-def(toc-leaf(part)):
-  <li:
+def(toc-leaf(current-part, part)):
+  classes = []
+
+  when(part == current-part):
+    classes << "current"
+
+  when(part contains-part?(current-part)):
+    classes << "active"
+
+  <li(class = classes join(" ")):
     <a(href = url(part)):
       over(part title)
 
     unless(part omit-children-from-table-of-contents? || part parts empty?):
       <ol:
-        part parts collect [p]: toc-leaf(p) --&.(Self toc-leaf(_))
+        part parts collect &.(Self toc-leaf(current-part, _))
 
 
 def(render(part, out = ".")):
@@ -212,19 +221,15 @@ def(render(part, out = ".")):
 
             <ul(.search-results) {}
 
-          <div(#sidebar):
-            unless(part parts empty?):
-              [ <h4: "On this page:"
+          with(in-sidebar? = true):
+            <div(#sidebar):
+              <h2:
+                <a(href = url(part top)):
+                  over(part top title)
 
-                <ol(.toc):
-                  part parts collect [s]: toc-leaf(s)
-              ]
-
-            when(part parent):
-              [ <h4: "Up one level:"
-                <ol(.toc):
-                  toc-leaf(part parent)
-              ]
+              <ol(.toc):
+                part top parts collect [p]:
+                  toc-leaf(part, p)
 
           when(analytics-id = ENV["ANALYTICS_ID"]):
             <script: UnescapedString new(i"
@@ -257,7 +262,7 @@ def(render-part(part, out = ".", depth = 1)):
         <ol(.toc, #table-of-contents):
           part parts collect [sub]:
             render(sub, out)
-            toc-leaf(sub)
+            toc-leaf(part, sub)
       else:
         part parts collect [sub]:
           render-part(sub, out, depth + 1)
