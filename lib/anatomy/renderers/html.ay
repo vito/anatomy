@@ -307,6 +307,8 @@ def(all-css-additions(p)):
   assets = p css-additions to-a
 
   p parts each [sub]:
-    assets += all-css-additions(sub)
+    -- exclude parts that have their own page
+    unless(top(sub) == sub):
+      assets += all-css-additions(sub)
 
   assets
