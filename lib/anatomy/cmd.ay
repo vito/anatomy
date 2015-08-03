@@ -1,22 +1,22 @@
 use(require("atomy"))
 
+require("anatomy/version")
 require("optparse")
 
 $LOAD_PATH unshift(File expand-path("../../lib", __FILE__))
 
 processor = require("anatomy/processor")
 
-ARGV shift
-
 options = #{
-  .input -> ARGV[0]
+  .input -> nil
   .output -> "."
   .renderer -> "html"
   .serve -> nil
+  .version -> false
 }
 
 op = OptionParser new [o]:
-  o banner = "usage: anatomy [file] [options]"
+  o banner = "usage: anatomy [options]"
 
   o on("-s", "--serve PORT", "serve the rendered documents on the given port") [v]:
     options[.serve] = v to-i
@@ -32,7 +32,14 @@ op = OptionParser new [o]:
        "which renderer to use (e.g. html)") [v]:
     options[.renderer] = v
 
+  o on-tail("--version", "print the version of anatomy and exit"):
+    options[.version] = true
+
 op parse!
+
+when(options[.version]):
+  puts(Anatomy VERSION)
+  exit(0)
 
 input = options[.input]
 output = options[.output]

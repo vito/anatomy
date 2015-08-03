@@ -1,6 +1,8 @@
+require File.expand_path("./lib/anatomy/version")
+
 Gem::Specification.new do |s|
   s.name     = "anatomy"
-  s.version  = "0.1.3"
+  s.version  = Anatomy::VERSION
   s.authors  = ["Alex Suraci"]
   s.email    = ["suraci.alex@gmail.com"]
   s.homepage = "https://vito.github.io/atomy"
