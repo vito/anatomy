@@ -10,8 +10,8 @@ input,textarea,select { font-family: inherit; font-size: inherit; font-weight: i
 a { text-decoration: none; color: inherit; }
 
 html {
-	background-color: #f5f5f5;
-	color: #151515;
+  background-color: #f5f5f5;
+  color: #151515;
 }
 
 body {
@@ -21,7 +21,7 @@ body {
 code {
   font-size: 14px;
   background: #fbfbfb;
-	color: #202020;
+  color: #202020;
   padding: 2px 5px;
   border-radius: 5px;
 }
@@ -81,15 +81,15 @@ p {
 }
 
 pre {
-	font-size: 14px;
-	font-weight: 400;
-	line-height: 24px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
 }
 
 blockquote {
-	font-size: 17px;
-	font-weight: 400;
-	line-height: 23px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 23px;
 }
 
 .section img {
@@ -127,7 +127,7 @@ dd {
 }
 
 #sidebar {
-	background: #202020;
+  background: #202020;
   color: #e0e0e0;
   width: 250px;
   height: 100%;
@@ -138,54 +138,54 @@ dd {
   bottom: 0;
 }
 #sidebar h2 {
-	padding: 0;
-	border: none;
+  padding: 0;
+  border: none;
 }
 #sidebar h2 a {
-	padding: .5em;
-	color: #f5f5f5;
-        background: #151515;
-	display: block;
-        font-weight: bold;
+  padding: .5em;
+  color: #f5f5f5;
+  background: #151515;
+  display: block;
+  font-weight: bold;
 }
 #sidebar h2 a:hover {
-	text-decoration: none;
-	background: #303030;
+  text-decoration: none;
+  background: #303030;
 }
 #sidebar .toc {
   font-size: 1em;
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 #sidebar .toc ol {
-	margin: 0;
-	padding: 0 0 0 1em;
+  margin: 0;
+  padding: 0 0 0 1em;
 }
 #sidebar .toc li {
-	list-style-type: none;
+  list-style-type: none;
 }
 #sidebar .toc a {
-	padding: .5em 1em;
-	display: block;
-	color: #e0e0e0;
+  padding: .5em 1em;
+  display: block;
+  color: #e0e0e0;
 }
 #sidebar .toc a:hover {
   color: #f5f5f5;
-	background: #505050;
-	text-decoration: none;
+  background: #505050;
+  text-decoration: none;
 }
 #sidebar .toc code {
   background: #151515;
   color: #f5f5f5;
 }
 #sidebar .toc li ol {
-	display: none;
+  display: none;
 }
 #sidebar .toc li.active ol {
-	display: block;
+  display: block;
 }
 #sidebar .toc li.current > a {
-	background: #303030;
+  background: #303030;
 }
 
 .search {
