@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency "atomy", "~> 0.6.3"
   s.add_runtime_dependency "broomhlda", "~> 0.2.0"
+  s.add_runtime_dependency "json_pure", "~> 1.8"
 
   s.add_development_dependency "rake", "~> 10.4"
 end
