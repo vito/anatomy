@@ -283,11 +283,14 @@ def(search-tags(p)):
     url = tag-url(tag)
     tags <<
       [ tag name
-        (tag display && over(tag display)) ||
-          <span(.tag):
-            <code:
-              <a(href = url):
-                tag name
+        if(tag display)
+          then:
+            <a(href = url): over(tag display)
+          else:
+            <span(.tag):
+              <code:
+                <a(href = url):
+                  tag name
         url
       ]
 
