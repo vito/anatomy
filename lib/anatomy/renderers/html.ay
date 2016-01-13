@@ -26,12 +26,12 @@ def(over(i & data Itemization)):
       [ <dt: over(name)
         <dd: over(body)
       ]
-def(over(l & data List)):
-  <ul:
-    l elements collect [body]:
-      <li: over(body)
 def(over(l & data OrderedList)):
   <ol:
+    l elements collect [body]:
+      <li: over(body)
+def(over(l & data List)):
+  <ul:
     l elements collect [body]:
       <li: over(body)
 def(over(p & data Paragraph)):
