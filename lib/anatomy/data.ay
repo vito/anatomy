@@ -66,6 +66,9 @@ data(
     -- css files to add
     @css-additions = Set new
 
+    -- template to use when rendering html
+    @template = nil
+
     -- omit children from table of contents
     @omit-children-from-table-of-contents? = false))
 

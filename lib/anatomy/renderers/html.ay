@@ -196,8 +196,12 @@ def(render(part, out = ".")):
         <head:
           <meta("http-equiv" = "Content-Type", content = "text/html; charset=UTF-8")
           <title: StrippedTags new(over(part title))
-          <link(type = "text/css", rel = "stylesheet", href = "public/anatomy.css")
-          <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
+
+          unless(part template):
+            [ <link(type = "text/css", rel = "stylesheet", href = "public/anatomy.css")
+              <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
+            ]
+
           <script(type = "text/javascript", src = "public/jquery.js") {}
           <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
           <script(type = "text/javascript", src = "public/tags.js") {}
@@ -207,29 +211,7 @@ def(render(part, out = ".")):
             <link(type = "text/css", rel = "stylesheet", href = File basename(addition))
 
         <body(class = class):
-          <div(#main):
-            <div(#content):
-              render-part(part, out)
-
-          <div(.search):
-            <form(action = "javascript:void(0)"):
-              <input(
-                  type = "text"
-                  placeholder = "Search&hellip;"
-                  autocomplete = "off"
-                  #search)
-
-            <ul(.search-results) {}
-
-          with(in-sidebar? = true):
-            <div(#sidebar):
-              <h2:
-                <a(href = url(part top)):
-                  over(part top title)
-
-              <ol(.toc):
-                part top parts collect [p]:
-                  toc-leaf(part, p)
+          render-part-template(part, out)
 
           when(analytics-id = ENV["ANALYTICS_ID"]):
             <script: UnescapedString new(i"
@@ -243,13 +225,37 @@ def(render(part, out = ".")):
             ")
       })
 
+def(render-part-template(part, out = ".")):
+  copy-part-assets(part, out)
+  (part template || Self) template-for(part, out)
+
+def(template-for(part, out)):
+  <div(#page):
+    <div(#main):
+      <div(#content):
+        render-part(part, out)
+
+    <div(.search):
+      <form(action = "javascript:void(0)"):
+        <input(
+            type = "text"
+            placeholder = "Search&hellip;"
+            autocomplete = "off"
+            #search)
+
+        <ul(.search-results) {}
+
+    with(in-sidebar? = true):
+      <div(#sidebar):
+        <h2:
+          <a(href = url(part top)):
+            over(part top title)
+
+        <ol(.toc):
+          part top parts collect [p]:
+            toc-leaf(part, p)
+
 def(render-part(part, out = ".", depth = 1)):
-  part assets each [a]:
-    FileUtils cp(a, out)
-
-  part css-additions each [a]:
-    FileUtils cp(a, out)
-
   <div(.section, id = i"section_#{part tag name}"):
     <"h#{depth}"(.section_header):
       <a(name = part tag name) {}
@@ -265,8 +271,15 @@ def(render-part(part, out = ".", depth = 1)):
             toc-leaf(part, sub)
       else:
         part parts collect [sub]:
+          copy-part-assets(sub, out)
           render-part(sub, out, depth + 1)
 
+def(copy-part-assets(part, out)):
+  part assets each [a]:
+    FileUtils cp_r(a, out, #{.remove_destination -> true})
+
+  part css-additions each [a]:
+    FileUtils cp_r(a, out)
 
 def(search-tags(p)):
   tags = [

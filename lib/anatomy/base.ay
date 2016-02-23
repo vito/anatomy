@@ -9,6 +9,11 @@ collect = require("anatomy/stages/collect")
 
 hl = require("hl")
 
+def(template(mod)):
+  data MetaBlock new(
+    [part]:
+      part template = mod)
+
 def(title(content, tag-name = data sanitize(content), *extra-tag-names)):
   data MetaBlock new(
     [part]:
