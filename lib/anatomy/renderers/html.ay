@@ -8,6 +8,8 @@ require("fileutils")
 use(require("anatomy/html"))
 data = require("anatomy/data")
 
+in-reference? = dynamic(false)
+in-sidebar? = dynamic(false)
 
 fn(tag-url(t)):
   t target match:
@@ -19,6 +21,106 @@ fn(tag-url(t)):
 
     .url(x):
       x
+
+fn(block-style(style, content)):
+  style match:
+    .tt:
+      <pre: over(content)
+
+    .verbatim:
+      <pre(.verbatim): over(content)
+
+    .class(*classes):
+      <div(class = classes join(" ")): over(content)
+
+    .classed(style, *classes):
+      h = block-style(style, content)
+      h attributes["class"] = classes join(" ")
+      h
+
+    .unordered-list:
+      <ul: over(content)
+
+    .list-item:
+      <li: over(content)
+
+    .header(depth):
+      <"h#{depth}": over(content)
+
+    .inset:
+      <div(style = "margin: 0 2em 1em"): over(content)
+
+    .centered:
+      <div(style = "text-align: center"): over(content)
+
+    .margin-note:
+      <blockquote: over(content)
+
+    nil:
+      <div: over(content)
+
+fn(element-style(style, content)):
+  style match:
+    .italic:
+      <em: over(content)
+
+    .bold:
+      <strong: over(content)
+
+    .tt:
+      <code: over(content)
+
+    .superscript:
+      <sup: over(content)
+
+    .subscript:
+      <sub: over(content)
+
+    .smaller:
+      <span(style = "font-size: 80%"): over(content)
+
+    .larger:
+      <span(style = "font-size: 120%"): over(content)
+
+    .strike:
+      <span(style = "text-decoration: line-through"): over(content)
+
+    .class(*classes):
+      <span(class = classes join(" ")): over(content)
+
+    .classed(style, *classes):
+      h = element-style(style, content)
+      h attributes["class"] = classes join(" ")
+      h
+
+    .button:
+      <button: over(content)
+
+    .hyperlink(url):
+      <a(href = url): over(content)
+
+    .image(file):
+      <img(src = file, alt = over(content))
+
+    .image(file, width):
+      <img(src = file, alt = over(content), width = width)
+
+    .font-awesome(*classes):
+      <i(class = (["fa"] + classes) join(" ")): over(content)
+
+    .svg(file):
+      <object(data = file, type = "image/svg+xml", width = "100%", height = "100%"):
+        <param(name = "src", value = file)
+
+    .script-src(url):
+      <script(src = url) {}
+
+    .async-script-src(url):
+      <script(async = true, defer = true, src = url) {}
+
+    .aux:
+      unless(^(in-reference?) || ^(in-sidebar?)):
+        over(content)
 
 def(over(i & data Itemization)):
   i elements collect [name, body]:
@@ -37,33 +139,7 @@ def(over(l & data List)):
 def(over(p & data Paragraph)):
   <p: over(p content)
 def(over(b & data Block)):
-  b style match:
-    .tt:
-      <pre: over(b content)
-
-    .verbatim:
-      <pre(.verbatim): over(b content)
-
-    .class(*classes):
-      <div(class = classes join(" ")): over(b content)
-
-    .header(depth):
-      <"h#{depth}": over(b content)
-
-    .inset:
-      <div(style = "margin: 0 2em 1em"): over(b content)
-
-    .centered:
-      <div(style = "text-align: center"): over(b content)
-
-    .margin-note:
-      <blockquote: over(b content)
-
-    nil:
-      <div: over(b content)
-
-in-reference? = dynamic(false)
-in-sidebar? = dynamic(false)
+  block-style(b style, b content)
 
 def(over(t & data Target)):
   <a(name = t name): nil
@@ -78,54 +154,7 @@ def(over(p & data Reference)):
 def(over(r & data ResolveElement)):
   error(.did-not-resolve(r))
 def(over(e & data Element)):
-  e style match:
-    .italic:
-      <em: over(e content)
-
-    .bold:
-      <strong: over(e content)
-
-    .tt:
-      <code: over(e content)
-
-    .superscript:
-      <sup: over(e content)
-
-    .subscript:
-      <sub: over(e content)
-
-    .smaller:
-      <span(style = "font-size: 80%"): over(e content)
-
-    .larger:
-      <span(style = "font-size: 120%"): over(e content)
-
-    .strike:
-      <span(style = "text-decoration: line-through"): over(e content)
-
-    .class(*classes):
-      <span(class = classes join(" ")): over(e content)
-
-    .hyperlink(url):
-      <a(href = url): over(e content)
-
-    .image(file):
-      <img(src = file, alt = over(e content))
-
-    .svg(file):
-      <object(data = file, type = "image/svg+xml", width = "100%", height = "100%"):
-        <param(name = "src", value = file)
-
-    .script-src(url):
-      <script(src = url) {}
-
-    .async-script-src(url):
-      <script(async = true, defer = true, src = url) {}
-
-    .aux:
-      unless(^(in-reference?) || ^(in-sidebar?)):
-        over(e content)
-
+  element-style(e style, e content)
 def(over(nil)): nil
 def(over(s & String)): s
 def(over(a & Array)):
