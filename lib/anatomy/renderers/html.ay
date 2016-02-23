@@ -122,6 +122,9 @@ fn(element-style(style, content)):
       unless(^(in-reference?) || ^(in-sidebar?)):
         over(content)
 
+    .newline:
+      <br
+
 def(over(i & data Itemization)):
   i elements collect [name, body]:
     <dl:
