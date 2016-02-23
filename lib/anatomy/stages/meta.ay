@@ -32,6 +32,9 @@ fn(add-content-to(str & String, body)):
     []:
       close-paragraph(body)
 
+fn(add-content-to(nil, body)):
+  nil
+
 fn(add-content-to(x, body)):
   ensure-paragraph(body)
   body last content << x
