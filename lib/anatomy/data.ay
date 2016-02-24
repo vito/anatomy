@@ -65,6 +65,7 @@ data(
 
     -- css files to add
     @css-additions = Set new
+    @css-url-additions = Set new
 
     -- template to use when rendering html
     @template = nil

@@ -246,6 +246,9 @@ def(render(part, out = ".")):
     File open(i"#{out}/public/tags.js", "w") [f]:
       f write(i"var SEARCH_TAGS = #{tags to-json};")
 
+  -- call this early so the template can register its own assets/etc
+  template = render-part-template(part, out)
+
   class =
     if(part style properties empty?)
       then: "normal"
@@ -270,10 +273,10 @@ def(render(part, out = ".")):
           <script(type = "text/javascript", src = "public/main.js") {}
 
           all-css-additions(part) collect [addition]:
-            <link(type = "text/css", rel = "stylesheet", href = File basename(addition))
+            <link(type = "text/css", rel = "stylesheet", href = addition)
 
         <body(class = class):
-          render-part-template(part, out)
+          template
 
           when(analytics-id = ENV["ANALYTICS_ID"]):
             <script: UnescapedString new(i"
@@ -387,7 +390,11 @@ def(search-tags(p)):
   tags
 
 def(all-css-additions(p)):
-  assets = p css-additions to-a
+  assets =
+    p css-additions to-a collect [file]:
+      File basename(file)
+
+  assets += p css-url-additions to-a
 
   p parts each [sub]:
     -- exclude parts that have their own page
