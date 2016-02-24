@@ -38,6 +38,17 @@ fn(block-style(style, content)):
       h attributes[.class] = classes join(" ")
       h
 
+    .with-data(style, attrs):
+      h = block-style(style, content)
+      attrs each [key, val]:
+        h attributes[i"data-#{key}"] = val
+      h
+
+    .id(style, id):
+      h = block-style(style, content)
+      h attributes[.id] = id
+      h
+
     .unordered-list:
       <ul: over(content)
 
@@ -91,6 +102,17 @@ fn(element-style(style, content)):
     .classed(style, *classes):
       h = element-style(style, content)
       h attributes[.class] = classes join(" ")
+      h
+
+    .id(style, id):
+      h = element-style(style, content)
+      h attributes[.id] = id
+      h
+
+    .with-data(style, attrs):
+      h = element-style(style, content)
+      attrs each [key, val]:
+        h attributes[i"data-#{key}"] = val
       h
 
     .button:
