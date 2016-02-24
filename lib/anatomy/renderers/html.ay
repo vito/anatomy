@@ -8,8 +8,10 @@ require("fileutils")
 use(require("anatomy/html"))
 data = require("anatomy/data")
 
-in-reference? = dynamic(false)
-in-sidebar? = dynamic(false)
+omit-aux-var? = dynamic(false)
+
+def(omit-aux?):
+  omit-aux-var?
 
 fn(tag-url(t)):
   t target match:
@@ -141,7 +143,7 @@ fn(element-style(style, content)):
       <script(async = true, defer = true, src = url) {}
 
     .aux:
-      unless(^(in-reference?) || ^(in-sidebar?)):
+      unless(^(omit-aux?)):
         over(content)
 
     .newline:
@@ -180,7 +182,7 @@ def(over(p & data Reference)):
   if(p tag)
     then:
       <a(href = tag-url(p tag)):
-        with(in-reference? = true):
+        with(omit-aux? = true):
           over(p content)
     else:
       <a(.undefined): over(p content)
@@ -310,7 +312,7 @@ def(template-for(part, out)):
 
         <ul(.search-results) {}
 
-    with(in-sidebar? = true):
+    with(omit-aux? = true):
       <div(#sidebar):
         <h2:
           <a(href = url(part top)):
