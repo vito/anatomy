@@ -125,6 +125,14 @@ fn(element-style(style, content)):
     .newline:
       <br
 
+    .picture(default, mapping):
+      sources =
+        mapping collect [media, src]:
+          <source(srcset = src, media = media)
+
+      <picture:
+        sources + [<img(src = default, alt = over(content))]
+
 def(over(i & data Itemization)):
   i elements collect [name, body]:
     <dl:
