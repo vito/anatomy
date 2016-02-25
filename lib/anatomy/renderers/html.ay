@@ -248,6 +248,8 @@ def(render(part, out = ".")):
     File open(i"#{out}/public/tags.js", "w") [f]:
       f write(i"var SEARCH_TAGS = #{tags to-json};")
 
+    copy-all-assets(part, out)
+
   -- call this early so the template can register its own assets/etc
   template = render-part-template(part, out)
 
@@ -292,9 +294,27 @@ def(render(part, out = ".")):
             ")
       })
 
+  -- now that everything's generated, copy all recorded assets over (note that
+  -- templates may register their own assets)
+  unless(part parent):
+    copy-all-assets(part, out)
+
 def(render-part-template(part, out = ".")):
-  copy-part-assets(part, out)
   (part template || Self) template-for(part, out)
+
+def(all-part-assets(part)):
+  assets = part assets to-a
+
+  assets += part css-additions to-a
+
+  part parts collect [sub]:
+    assets += all-part-assets(sub)
+
+  assets
+
+def(copy-all-assets(part, out)):
+  all-part-assets(part) each [a]:
+    sync-asset-to(a, out)
 
 def(template-for(part, out)):
   <div(#page):
@@ -338,15 +358,20 @@ def(render-part(part, out = ".", depth = 1)):
             toc-leaf(part, sub)
       else:
         part parts collect [sub]:
-          copy-part-assets(sub, out)
           render-part(sub, out, depth + 1)
 
-def(copy-part-assets(part, out)):
-  part assets each [a]:
-    FileUtils cp_r(a, out, #{.remove_destination -> true})
+def(sync-asset-to(path, outdir)):
+  if(File directory?(path))
+    then:
+      subdir = File join(outdir, File basename(path))
 
-  part css-additions each [a]:
-    FileUtils cp_r(a, out)
+      Dir entries(path) each [entry]:
+        when((entry != ".") && (entry != "..")):
+          sync-asset-to(File join(path, entry), subdir)
+
+    else:
+      FileUtils mkdir_p(outdir)
+      FileUtils cp(path, File join(outdir, File basename(path)))
 
 def(search-tags(p)):
   tags = [
@@ -392,15 +417,16 @@ def(search-tags(p)):
   tags
 
 def(all-css-additions(p)):
-  assets =
-    p css-additions to-a collect [file]:
-      File basename(file)
+  all-assets = Set new
 
-  assets += p css-url-additions to-a
+  p css-additions each [file]:
+    all-assets << File basename(file)
+
+  all-assets += p css-url-additions
 
   p parts each [sub]:
     -- exclude parts that have their own page
     unless(top(sub) == sub):
-      assets += all-css-additions(sub)
+      all-assets += all-css-additions(sub)
 
-  assets
+  all-assets
