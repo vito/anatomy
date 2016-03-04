@@ -81,6 +81,17 @@ def(Part set-local-tag(name, target = nil, display = nil)):
 
 def(Part toc?): style properties include?(.toc)
 
+def(Part section-label):
+  if(@parent)
+    then:
+      parent-label = @parent section-label
+      self-index = (@parent parts index(self) + 1)
+
+      if(parent-label empty?)
+        then: i"#{self-index}"
+        else: i"#{parent-label}.#{self-index}"
+    else: ""
+
 def(Part inspect): i"#<Part: '#{@tag name}'>"
 
 -- search in order:
