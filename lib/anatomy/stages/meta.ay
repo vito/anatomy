@@ -53,6 +53,10 @@ def(pass(a & Array, part, body = part body)):
 def(pass(p & data Part, part, body = part body)):
   part parts << p
   p parent = part
+
+  unless(p template):
+    p template = part template
+
   part body freeze
   nil
 
