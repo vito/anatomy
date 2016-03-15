@@ -71,7 +71,10 @@ data(
     @template = nil
 
     -- omit children from table of contents
-    @omit-children-from-table-of-contents? = false))
+    @omit-children-from-table-of-contents? = false
+
+    -- whether or not the part will handle mobile device sizes elegantly
+    @mobile-optimized? = false))
 
 def(Part set-tag(name, target = .self, display = nil)):
   @tags[name] = Tag new(self, name, target, display)

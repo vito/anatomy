@@ -29,6 +29,11 @@ def(table-of-contents):
     [part]:
       part style properties << .toc)
 
+def(mobile-optimized):
+  data MetaBlock new(
+    [part]:
+      part mobile-optimized? = true)
+
 def(omit-children-from-table-of-contents):
   data ResolveElement new(
     [part]:
