@@ -347,7 +347,7 @@ def(template-for(part, out)):
 
 def(render-part(part, out = ".", depth = 1)):
   <div(.section, id = i"section_#{part tag name}"):
-    <"h#{depth}"(.section_header):
+    <"h#{depth}"(.section-header):
       <a(name = part tag name) {}
       over(part title)
 

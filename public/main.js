@@ -108,10 +108,10 @@ function bindTouch() {
 
 function bindSearch() {
   $("#search").keyup(function(){
-    $(".search_results").empty();
+    $(".search-results").empty();
 
     if (!$("#search").val().length) {
-      $(".search_results").hide();
+      $(".search-results").hide();
       return;
     }
 
@@ -131,15 +131,15 @@ function bindSearch() {
       matches.push(url);
 
       if (k == q)
-        $(".search_results").prepend(item);
+        $(".search-results").prepend(item);
       else
-        $(".search_results").append(item);
+        $(".search-results").append(item);
     });
 
     if (matches.length == 0)
-      $(".search_results").hide();
+      $(".search-results").hide();
     else
-      $(".search_results").show();
+      $(".search-results").show();
   });
 }
 

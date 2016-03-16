@@ -5,8 +5,11 @@ require("cgi")
 
 data(HTMLElement(@name, @attributes = #{}, @body = nil))
 
-fn(attr-to-pair(`.~name)): `(.class -> ~(Atomy Code StringLiteral new(name text to-s)))
-fn(attr-to-pair(`#~name)): `(.id -> ~(Atomy Code StringLiteral new(name text to-s)))
+fn(word-name(word)):
+  Atomy Code StringLiteral new(word text to-s gsub("_", "-"))
+
+fn(attr-to-pair(`.~name)): `(.class -> ~word-name(name))
+fn(attr-to-pair(`#~name)): `(.id -> ~word-name(name))
 fn(attr-to-pair(`(~x = ~y))): `(.~x -> ~y)
 
 macro(<(~name)(~*attrs): ~*body):

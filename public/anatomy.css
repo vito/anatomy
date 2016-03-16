@@ -100,13 +100,13 @@ blockquote {
   margin-bottom: 2em;
   line-height: 1.4em;
 }
-#table_of_contents {
+#table-of-contents {
   font-size: 1.1em;
 }
-#table_of_contents > li {
+#table-of-contents > li {
   margin-bottom: 1em;
 }
-#table_of_contents > li > a {
+#table-of-contents > li > a {
   font-weight: bold;
 }
 .toc p {
@@ -203,26 +203,26 @@ div.search:hover {
   padding: 5px;
   border: 2px solid #e0e0e0;
 }
-.search .search_results {
+.search .search-results {
   margin: 0;
   border: 2px solid #e0e0e0;
   border-top: 0;
   display: none;
   background: #fff;
 }
-.search .search_results li {
+.search .search-results li {
   list-style: none;
   padding: 5px;
 }
-.search .search_results .parent {
+.search .search-results .parent {
   font-size: 12px;
   font-style: italic;
   color: #505050;
 }
-.search .search_results .parent a {
+.search .search-results .parent a {
   color: #202020;
 }
-.search .search_results .tag {
+.search .search-results .tag {
   font-style: italic;
   color: #505050;
 }
@@ -290,7 +290,7 @@ table th, table td {
   padding: 0 .5em;
 }
 
-.margin_note {
+.margin-note {
   width: 13em;
   float: right;
   margin-top: -1.5em;
@@ -321,7 +321,7 @@ table th, table td {
   color: #d0d0d0;
 }
 
-.error_output {
+.error-output {
   display: block;
   font-style: italic;
   background: #fee;
@@ -336,15 +336,15 @@ table th, table td {
   z-index: 1;
   background: rgba(255, 255, 255, .5);
 }
-.annotated_source {
+.annotated-source {
   width: 100%;
 }
-.annotated_source thead h1 {
+.annotated-source thead h1 {
   line-height: 1em;
   margin: 1.2em 0 .39em 0;
   font-weight: bold;
 }
-.annotated_source .prose {
+.annotated-source .prose {
   background: #fff;
   width: 30em;
   max-width: 30em;
@@ -354,14 +354,14 @@ table th, table td {
   vertical-align: top;
   text-align: left;
 }
-.annotated_source .prose code,
-.annotated_source .prose pre {
+.annotated-source .prose code,
+.annotated-source .prose pre {
   background: #f8f8ff;
   border: .1em solid #dedede;
   padding: 0 0.2em;
   overflow-x: auto;
 }
-.annotated_source .code {
+.annotated-source .code {
   background: #f5f5ff;
   border-left: .1em solid #e5e5e5;
   padding: 1.1em 2em 0em 1.5em;
@@ -384,7 +384,7 @@ table th, table td {
 .slides > .search {
   display: none;
 }
-.slides #content .section > .section_header {
+.slides #content .section > .section-header {
   display: none;
 }
 .slides #content .section > p {
@@ -440,14 +440,14 @@ table th, table td {
   padding-bottom: .5em;
 }
 .slide.title,
-.slide.title_only {
+.slide.title-only {
   display: table;
   width: 1024px;
   height: 768px;
   padding: 0;
 }
 .slide.title .body,
-.slide.title_only h1  {
+.slide.title-only h1  {
   display: table-cell;
   vertical-align: middle;
 }
@@ -463,7 +463,7 @@ table th, table td {
   text-align: center;
   padding-bottom: 1em;
 }
-.slide.title_only h1 {
+.slide.title-only h1 {
   text-align: center;
   font-size: 5em;
 }

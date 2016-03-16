@@ -12,7 +12,7 @@ def(slides):
 def(title-slide(title)):
   data Block new(
     data Block new(title, .header(1))
-    .class("slide title_only"))
+    .class("slide title-only"))
 
 def(title-slide(title, subtitle)):
   data Block new(
