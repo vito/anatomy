@@ -24,9 +24,15 @@ def(title(content, tag-name = data sanitize(content), *extra-tag-names)):
       extra-tag-names each [t]:
         part set-tag(t))
 
+def(split-sections):
+  data MetaBlock new(
+    [part]:
+      part style properties << .split-sections)
+
 def(table-of-contents):
   data MetaBlock new(
     [part]:
+      part style properties << .split-sections
       part style properties << .toc)
 
 def(mobile-optimized):

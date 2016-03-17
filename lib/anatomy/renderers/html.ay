@@ -201,7 +201,7 @@ def(filename(p)): p tag name + ".html"
 
 def(top(p)):
   condition:
-    (p parent && p parent toc?):
+    (p parent && p parent split-sections?):
       p
 
     p parent:
@@ -353,12 +353,15 @@ def(render-part(part, out = ".", depth = 1)):
 
     over(part body)
 
-    if(part toc?)
+    if(part split-sections?)
       then:
-        <ol(.toc, #table-of-contents):
-          part parts collect [sub]:
-            render(sub, out)
-            toc-leaf(part, sub)
+        part parts collect [sub]:
+          render(sub, out)
+
+        when(part toc?):
+          <ol(.toc, #table-of-contents):
+            part parts collect [sub]:
+              toc-leaf(part, sub)
       else:
         part parts collect [sub]:
           render-part(sub, out, depth + 1)

@@ -82,6 +82,8 @@ def(Part set-tag(name, target = .self, display = nil)):
 def(Part set-local-tag(name, target = nil, display = nil)):
   @local-tags[name] = Tag new(self, name, target, display)
 
+def(Part split-sections?): style properties include?(.split-sections)
+
 def(Part toc?): style properties include?(.toc)
 
 def(Part section-label):
