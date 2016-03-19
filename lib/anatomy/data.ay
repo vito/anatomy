@@ -99,6 +99,9 @@ def(Part section-label):
 
 def(Part inspect): i"#<Part: '#{@tag name}'>"
 
+def(Part template):
+  @template || (@parent && @parent template)
+
 -- search in order:
 -- 1. local hidden tags
 -- 2. local tags
