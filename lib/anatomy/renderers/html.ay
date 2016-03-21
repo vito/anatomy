@@ -415,7 +415,7 @@ def(search-tags(p)):
   p parts each [sub]:
     tags += search-tags(sub) collect [t, d, u]:
       [ t
-        if(d is-a?(HTMLElement) && (d attributes[.class] == "with_parent"))
+        if(d is-a?(HTMLElement) && (d attributes[.class] == "with-parent"))
           then: d
           else:
             <span(.with-parent):
