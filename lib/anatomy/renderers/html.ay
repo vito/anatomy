@@ -241,16 +241,16 @@ def(toc-leaf(current-part, part)):
 
 
 def(render(part, out = ".")):
+  tags-file = i"#{Dir tmpdir}/#{part top tag name}-tags.js"
+
   unless(part parent):
     tags = search-tags(part) collect [t, d, u]:
       [t, d to-s, u]
 
-    tags-file = i"#{Dir tmpdir}/#{part tag name}-tags.js"
-
     File open(tags-file, "w") [f]:
       f write(i"var SEARCH_TAGS = #{tags to-json};")
 
-    part js-additions << tags-file
+  part js-additions << tags-file
 
   -- call this early so the template can register its own assets/etc
   template = render-part-template(part, out)
