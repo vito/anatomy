@@ -6,6 +6,9 @@ data = require("anatomy/data")
 def(slides):
   data MetaBlock new(
     [part]:
+      part js-additions << File expand-path("../slides-js/jquery.hotkeys.js")
+      part js-additions << File expand-path("../slides-js/slides.js")
+
       part style properties << .slides)
 
 
