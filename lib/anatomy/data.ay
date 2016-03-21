@@ -67,6 +67,9 @@ data(
     @css-additions = Set new
     @css-url-additions = Set new
 
+    -- js files to add (array since order matters)
+    @js-additions = []
+
     -- template to use when rendering html
     @template = nil
 

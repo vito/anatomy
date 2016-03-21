@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
     A document authoring system inspired by Scribble.
   }
 
-  s.files         = %w{LICENSE.md} + Dir["{lib,bin,public}/**/*"]
+  s.files         = %w{LICENSE.md} + Dir["{lib,bin}/**/*"]
   s.executables   = ["anatomy"]
   s.require_paths = ["lib"]
 

@@ -245,10 +245,12 @@ def(render(part, out = ".")):
     tags = search-tags(part) collect [t, d, u]:
       [t, d to-s, u]
 
-    File open(i"#{out}/public/tags.js", "w") [f]:
+    tags-file = i"#{Dir tmpdir}/#{part tag name}-tags.js"
+
+    File open(tags-file, "w") [f]:
       f write(i"var SEARCH_TAGS = #{tags to-json};")
 
-    copy-all-assets(part, out)
+    part js-additions << tags-file
 
   -- call this early so the template can register its own assets/etc
   template = render-part-template(part, out)
@@ -266,18 +268,11 @@ def(render(part, out = ".")):
           <meta("http-equiv" = "Content-Type", content = "text/html; charset=UTF-8")
           <title: StrippedTags new(over(part title))
 
-          unless(part template):
-            [ <link(type = "text/css", rel = "stylesheet", href = "public/anatomy.css")
-              <link(type = "text/css", rel = "stylesheet", href = "public/highlight.css")
-            ]
-
-          <script(type = "text/javascript", src = "public/jquery.js") {}
-          <script(type = "text/javascript", src = "public/jquery.hotkeys.js") {}
-          <script(type = "text/javascript", src = "public/tags.js") {}
-          <script(type = "text/javascript", src = "public/main.js") {}
-
           when(part mobile-optimized?):
             <meta(name = "viewport", content = "width=device-width, initial-scale=1")
+
+          all-js-additions(part) collect [addition]:
+            <script(type = "text/javascript", src = addition) {}
 
           all-css-additions(part) collect [addition]:
             <link(type = "text/css", rel = "stylesheet", href = addition)
@@ -310,6 +305,8 @@ def(all-part-assets(part)):
 
   assets += part css-additions to-a
 
+  assets += part js-additions to-a
+
   part parts collect [sub]:
     assets += all-part-assets(sub)
 
@@ -320,6 +317,12 @@ def(copy-all-assets(part, out)):
     sync-asset-to(a, out)
 
 def(template-for(part, out)):
+  part css-additions << File expand-path("../css/anatomy.css", __FILE__)
+  part css-additions << File expand-path("../css/highlight.css", __FILE__)
+
+  part js-additions << File expand-path("../js/jquery.js", __FILE__)
+  part js-additions << File expand-path("../js/main.js", __FILE__)
+
   <div(#page):
     <div(#main):
       <div(#content):
@@ -434,5 +437,18 @@ def(all-css-additions(p)):
     -- exclude parts that have their own page
     unless(top(sub) == sub):
       all-assets += all-css-additions(sub)
+
+  all-assets
+
+def(all-js-additions(p)):
+  all-assets = []
+
+  p js-additions each [file]:
+    all-assets << File basename(file)
+
+  p parts each [sub]:
+    -- exclude parts that have their own page
+    unless(top(sub) == sub):
+      all-assets += all-js-additions(sub)
 
   all-assets

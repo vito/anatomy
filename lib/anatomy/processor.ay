@@ -30,11 +30,4 @@ def(process(input, renderer, output = ".")):
   unless(Dir exists?(output)):
     Dir mkdir(output)
 
-  unless(Dir exists?(output + "/public")):
-    Dir mkdir(output + "/public")
-
-  FileUtils cp-r(
-    File expand-path("../../../public", __FILE__) + "/."
-    output + "/public")
-
   renderer render(part, output)
