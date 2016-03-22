@@ -14,15 +14,18 @@ def(template(mod)):
     [part]:
       part template = mod)
 
+def(set-title(content, tag-name = data sanitize(content), *extra-tag-names)):
+  data MetaBlock new(
+    [part]:
+      part title = content
+
+      part tag = part set-tag(tag-name, .self, content)
+
+      extra-tag-names each [t]:
+        part set-tag(t))
+
 def(title(content, tag-name = data sanitize(content), *extra-tag-names)):
-  [ data MetaBlock new(
-      [part]:
-        part title = content
-
-        part tag = part set-tag(tag-name, .self, content)
-
-        extra-tag-names each [t]:
-          part set-tag(t))
+  [ set-title(content, tag-name, *extra-tag-names)
 
     data ResolveBlock new(
       [part]:
