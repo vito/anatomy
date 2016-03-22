@@ -271,11 +271,11 @@ def(render(part, out = ".")):
           when(part mobile-optimized?):
             <meta(name = "viewport", content = "width=device-width, initial-scale=1")
 
-          all-js-additions(part) collect [addition]:
-            <script(type = "text/javascript", src = addition) {}
-
           all-css-additions(part) collect [addition]:
             <link(type = "text/css", rel = "stylesheet", href = addition)
+
+          all-js-additions(part) collect [addition]:
+            <script(type = "text/javascript", src = addition) {}
 
         <body(class = class):
           template
