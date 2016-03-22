@@ -352,12 +352,8 @@ def(template-for(part, out)):
           part top parts collect [p]:
             toc-leaf(part, p)
 
-def(render-part(part, out = ".", depth = 1)):
+def(render-part(part, out = ".")):
   <div(.section, id = i"section_#{part tag name}"):
-    <"h#{depth}"(.section-header):
-      <a(name = part tag name) {}
-      over(part title)
-
     over(part body)
 
     if(part split-sections?)
@@ -371,7 +367,7 @@ def(render-part(part, out = ".", depth = 1)):
               toc-leaf(part, sub)
       else:
         part parts collect [sub]:
-          render-part(sub, out, depth + 1)
+          render-part(sub, out)
 
 def(sync-asset-to(path, outdir)):
   if(File directory?(path))

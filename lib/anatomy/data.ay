@@ -89,6 +89,15 @@ def(Part split-sections?): style properties include?(.split-sections)
 
 def(Part toc?): style properties include?(.toc)
 
+def(Part page-depth):
+  if(@parent)
+    then:
+      if(@parent split-sections?)
+        then: 0
+        else: @parent page-depth + 1
+    else:
+      0
+
 def(Part section-label):
   if(@parent)
     then:
