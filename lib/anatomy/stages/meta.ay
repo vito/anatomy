@@ -77,17 +77,13 @@ def(pass(l & data List, part, body = part body)):
 def(pass(b & data Block, part, body = part body)):
   unless(body frozen?):
     body <<
-      b style match:
-        .tt: b
-
-        .verbatim: b
-
-        .header(_): b
-
-        _:
+      if(b prose-content?)
+        then:
           b dup tap [x]:
             x content = []
             pass(b content, part, x content)
+        else:
+          b
 
 def(pass(x, part, body = part body)):
   condition:

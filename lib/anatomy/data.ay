@@ -13,6 +13,26 @@ data(Block(@content, @style = nil)):
   List(@elements):
     OrderedList(@elements)
 
+fn(style-contains-prose?(style)):
+  style match:
+    .tt:
+      false
+
+    .verbatim:
+      false
+
+    .header(_):
+      false
+
+    .classed(sub, *classes):
+      style-contains-prose?(sub)
+
+    _:
+      true
+
+def(Block prose-content?):
+  style-contains-prose?(@style)
+
 data(Element(@content, @style = nil)):
   Target(@name)
   TOC(@content)
