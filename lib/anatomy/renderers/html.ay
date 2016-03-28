@@ -317,9 +317,10 @@ def(copy-all-assets(part, out)):
     sync-asset-to(a, out)
 
 def(search-js-additions):
-  [ File expand-path("../js/jquery.js", __FILE__)
-    File expand-path("../js/search.js", __FILE__)
-  ]
+  Set new(
+    [ File expand-path("../js/jquery.js", __FILE__)
+      File expand-path("../js/search.js", __FILE__)
+    ])
 
 def(template-for(part, out)):
   part css-additions << File expand-path("../css/anatomy.css", __FILE__)
@@ -441,7 +442,7 @@ def(all-css-additions(p)):
   all-assets
 
 def(all-js-additions(p)):
-  all-assets = []
+  all-assets = Set new
 
   p js-additions each [file]:
     all-assets << File basename(file)
