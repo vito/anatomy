@@ -201,11 +201,10 @@ def(filename(p)): p tag name + ".html"
 
 def(top(p)):
   condition:
-    (p parent && p parent split-sections?):
-      p
-
     p parent:
-      top(p parent)
+      if(p parent split-sections? && !(p parent inlined?))
+        then: p
+        else: top(p parent)
 
     otherwise:
       p
@@ -357,7 +356,7 @@ def(render-part(part, out = ".")):
   <div(.section, id = i"section_#{part tag name}"):
     over(part body)
 
-    if(part split-sections?)
+    if(part split-sections? && !(part inlined?))
       then:
         part parts collect [sub]:
           render(sub, out)

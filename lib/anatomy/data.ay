@@ -105,14 +105,22 @@ def(Part set-tag(name, target = .self, display = nil)):
 def(Part set-local-tag(name, target = nil, display = nil)):
   @local-tags[name] = Tag new(self, name, target, display)
 
-def(Part split-sections?): style properties include?(.split-sections)
+def(Part inline-sections?):
+  style properties include?(.inline-sections)
 
-def(Part toc?): style properties include?(.toc)
+def(Part inlined?):
+  inline-sections? || (@parent && @parent inlined?)
+
+def(Part split-sections?):
+  style properties include?(.split-sections)
+
+def(Part toc?):
+  style properties include?(.toc)
 
 def(Part page-depth):
   if(@parent)
     then:
-      if(@parent split-sections?)
+      if(@parent split-sections? || @parent inline-sections?)
         then: 0
         else: @parent page-depth + 1
     else:

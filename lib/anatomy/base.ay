@@ -36,6 +36,11 @@ def(title(content, tag-name = data sanitize(content), *extra-tag-names)):
           .header(part page-depth + 1)))
   ]
 
+def(inline-sections):
+  data MetaBlock new(
+    [part]:
+      part style properties << .inline-sections)
+
 def(split-sections):
   data MetaBlock new(
     [part]:
