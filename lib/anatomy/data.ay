@@ -205,7 +205,7 @@ def(content?(_)): false
 def(sanitize(x)):
   contents-of(x) gsub(r" & ", " and ")
     gsub(r"\s+", "-")
-    gsub(r"[^[:alnum:]_\-:.]", "")
+    gsub(r"[^[:alnum:]_\-]", "")
     downcase
 
 def(contents-of(s & String)): s
