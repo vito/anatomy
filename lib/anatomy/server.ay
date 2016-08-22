@@ -1,6 +1,7 @@
 use(require("atomy"))
 
 require("webrick")
+require("puma")
 
 -- shim in svg content-type support
 WEBrick HTTPUtils DefaultMimeTypes["svg"] = "image/svg+xml"
@@ -10,43 +11,47 @@ class(Server):
     @mutex = Mutex new
 
 def(Server serve(port)):
-  server = WEBrick HTTPServer new(#{.Port -> port})
+  server = Puma Server new(
+    [env]:
+      relative-path = env["REQUEST_PATH"] sub(r"^\/", "")
+      local-abs-path = File absolute-path(relative-path, @destination)
 
-  server mount-proc("/") [req, res]:
-    relative-path = req path sub(r"^\/", "")
-    local-abs-path = File absolute-path(relative-path, @destination)
+      if(relative-path == "favicon.ico")
+        then: respond-to-favicon
+        else: respond-to-path(relative-path, local-abs-path)
+  )
 
-    if(relative-path == "favicon.ico")
-      then: respond-to-favicon(res)
-      else: respond-to-path(res, relative-path, local-abs-path)
+  server add-tcp-listener("0.0.0.0", port)
 
-  trap("INT"): server shutdown
+  -- server mount-proc("/") [req, res]:
 
-  server start
+  trap("INT"):
+    server stop
 
-def(Server respond-to-favicon(res)):
-  res status = 404
+  puts(i"serving on port #{port}")
+  server run(false)
 
-def(Server respond-to-path(res, relative-path, local-abs-path)):
+def(Server respond-to-favicon()):
+  [404, #{}, []]
+
+def(Server respond-to-path(relative-path, local-abs-path)):
   do {
-    rebuild-if-needed 
+    rebuild-if-needed
 
     if(File directory?(local-abs-path))
-      then: respond-to-file(res, File join(local-abs-path, "index.html"))
-      else: respond-to-file(res, local-abs-path)
+      then: respond-to-file(File join(local-abs-path, "index.html"))
+      else: respond-to-file(local-abs-path)
   } rescue:
     e:
       message = i"#{e to-s}\n#{Rubinius Backtrace backtrace(e locations) show}"
       puts(message)
-      respond-with-error(res, message)
+      respond-with-error(message)
 
-def(Server respond-with-error(res, message)):
-  res content-type = "text/html"
-  res body = i"<pre>#{message}</pre>"
+def(Server respond-with-error(message)):
+  [500, #{"Content-Type" -> "text/html"}, [i"<pre>#{message}</pre>"]]
 
-def(Server respond-to-file(res, local-abs-path)):
-  res body = File read(local-abs-path)
-  res content-type = guess-content-type(local-abs-path)
+def(Server respond-to-file(local-abs-path)):
+  [200, #{"Content-Type" -> guess-content-type(local-abs-path)}, [File read(local-abs-path)]]
 
 def(Server guess-content-type(path)):
   extension = File extname(path) sub(r"^\.", "")
@@ -54,7 +59,6 @@ def(Server guess-content-type(path)):
     "application/octet-stream"
 
 def(Server rebuild-if-needed):
-  -- Webrick is multi-threaded; guard against concurrent builds
   @mutex synchronize:
     when(@last-disk-state == disk-state):
       return
