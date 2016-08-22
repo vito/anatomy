@@ -63,12 +63,14 @@ def(Server rebuild-if-needed):
     when(@last-disk-state == disk-state):
       return
 
-    puts(i"---------------- rebuilding #{@source}")
+    puts(i"rebuilding #{@source}...")
 
     -- clear out already-loaded document modules
     $LOADED_FEATURES reject! &.end-with?(".any")
 
     @processor process(@source, @renderer, @destination)
+
+    puts("done")
 
     -- Save disk state after rebuilding, to ignore the built artifacts
     -- themselves
