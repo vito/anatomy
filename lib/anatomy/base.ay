@@ -66,11 +66,11 @@ def(section(title, *tag-names, content)):
   decode(title(title, *tag-names), content)
 
 def(include-section(path)):
-  Atomy CodeLoader require(path) doc
+  Atomy CodeLoader load(path) doc
 
 def(include-sections(path)):
   Dir glob(path) collect [s]:
-    Atomy CodeLoader require(s) doc
+    Atomy CodeLoader load(s) doc
 
 def(target-element(tag-name, display = nil)):
   data CollectElement new(

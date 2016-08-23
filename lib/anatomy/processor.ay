@@ -13,7 +13,7 @@ html = require("anatomy/renderers/html")
 
 def(load(input)):
   puts(i"#{input}: loading")
-  mod = Atomy CodeLoader require(input)
+  mod = Atomy CodeLoader load(input)
 
   part = mod doc
 
