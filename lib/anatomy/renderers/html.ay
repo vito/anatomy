@@ -239,7 +239,12 @@ def(toc-leaf(current-part, part)):
         part parts collect &.(Self toc-leaf(current-part, _))
 
 
-def(render(part, out = ".")):
+def(render(part, out = ".", done = Set new)):
+  when(done include?(part)):
+    return
+
+  done << part
+
   tags-file = i"#{Dir tmpdir}/#{part top tag name}-tags.js"
 
   unless(part parent):
@@ -252,7 +257,7 @@ def(render(part, out = ".")):
   part js-additions << tags-file
 
   -- call this early so the template can register its own assets/etc
-  template = render-part-template(part, out)
+  template = render-part-template(part, out, done)
 
   class =
     if(part style properties empty?)
@@ -296,15 +301,15 @@ def(render(part, out = ".")):
   unless(part parent):
     copy-all-assets(part, out)
 
-def(render-part-template(part, out = ".")):
-  (part template || Self) template-for(part, out)
+def(render-part-template(part, out = ".", done = Set new)):
+  (part template || Self) template-for(part, out, done)
 
 def(all-part-assets(part)):
-  assets = part assets to-a
+  assets = Set new(part assets)
 
-  assets += part css-additions to-a
+  assets += part css-additions
 
-  assets += part js-additions to-a
+  assets += part js-additions
 
   part parts collect [sub]:
     assets += all-part-assets(sub)
@@ -321,7 +326,7 @@ def(search-js-additions):
       File expand-path("../js/search.js", __FILE__)
     ])
 
-def(template-for(part, out)):
+def(template-for(part, out, done)):
   part css-additions << File expand-path("../css/anatomy.css", __FILE__)
   part css-additions << File expand-path("../css/highlight.css", __FILE__)
 
@@ -330,7 +335,7 @@ def(template-for(part, out)):
   <div(#page):
     <div(#main):
       <div(#content):
-        render-part(part, out)
+        render-part(part, out, done)
 
     <div(.search):
       <form(action = "javascript:void(0)"):
@@ -352,14 +357,14 @@ def(template-for(part, out)):
           part top parts collect [p]:
             toc-leaf(part, p)
 
-def(render-part(part, out = ".")):
+def(render-part(part, out = ".", done = Set new)):
   <div(.section, id = i"section_#{part tag name}"):
     over(part body)
 
     if(part split-sections? && !(part inlined?))
       then:
         part parts collect [sub]:
-          render(sub, out)
+          render(sub, out, done)
 
         when(part toc?):
           <ol(.toc, #table-of-contents):
@@ -367,7 +372,7 @@ def(render-part(part, out = ".")):
               toc-leaf(part, sub)
       else:
         part parts collect [sub]:
-          render-part(sub, out)
+          render-part(sub, out, done)
 
 def(sync-asset-to(path, outdir)):
   if(File directory?(path))
