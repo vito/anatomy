@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.has_rdoc = false
   s.rubyforge_project = "anatomy"
 
-  s.add_runtime_dependency "atomy", "~> 0.6.3"
+  s.add_runtime_dependency "atomy", "~> 0.7.0"
   s.add_runtime_dependency "puma", "~> 3.6"
   s.add_runtime_dependency "broomhlda", "~> 0.2.0"
   s.add_runtime_dependency "json_pure", "~> 1.8"
