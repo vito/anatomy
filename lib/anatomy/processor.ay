@@ -12,11 +12,18 @@ resolve = require("anatomy/stages/resolve")
 html = require("anatomy/renderers/html")
 
 def(load(input)):
+  puts(i"#{input}: loading")
   mod = Atomy CodeLoader require(input)
 
   part = mod doc
+
+  puts(i"#{input}: traversing")
   traversed = traverse over(part)
+
+  puts(i"#{input}: collecting")
   collected = collect over(traversed)
+
+  puts(i"#{input}: resolving")
   resolved = resolve over(collected)
 
   resolved
@@ -30,4 +37,5 @@ def(process(input, renderer, output = ".")):
   unless(Dir exists?(output)):
     Dir mkdir(output)
 
+  puts(i"#{input}: rendering")
   renderer render(part, output)
