@@ -43,7 +43,8 @@ def(Server respond-to-path(relative-path, local-abs-path)):
       else: respond-to-file(local-abs-path)
   } rescue:
     e:
-      message = i"#{e to-s}\n#{Rubinius Backtrace backtrace(e locations) show}"
+      backtrace = Rubinius Backtrace backtrace(e locations) show("\n", false)
+      message = i"#{e to-s}\n#{backtrace}"
       puts(message)
       respond-with-error(message)
 
